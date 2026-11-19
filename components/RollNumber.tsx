@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Style } from "./Style";
 
 /**
  * Mechanical split-flap style rolling number.
@@ -57,11 +58,11 @@ export function RollNumber({
           );
         })}
       </span>
-      <style>{`
+      <Style>{`
         .roll-wrap[data-flash="up"] { color: #19f58a; text-shadow: 0 0 calc(var(--u) * 12) rgba(25,245,138,0.6); }
         .roll-wrap[data-flash="dn"] { color: #ff3b5c; text-shadow: 0 0 calc(var(--u) * 12) rgba(255,59,92,0.6); }
         .roll-wrap { display: inline-block; transition: color 0.3s; }
-      `}</style>
+      `}</Style>
     </span>
   );
 }

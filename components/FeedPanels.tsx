@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Style } from "./Style";
 import { useStore } from "@/lib/store";
 import type { FeedEvent } from "@/lib/types";
 import { hms, fmtPrice, fmtCompact, fmtPct, COLORS } from "@/lib/format";
@@ -12,14 +13,14 @@ export function IntroOverlay() {
     <div className={`intro ${intro ? "" : "done"}`} aria-hidden={!intro}>
       <div className="intro-line" />
       <div className="intro-label mono">NEURAL CORE BOOTING · LOADING MARKET STRUCTURE</div>
-      <style>{`
+      <Style>{`
         .intro-label {
           position: absolute; bottom: 12%; font-size: var(--fs-xs);
           letter-spacing: 0.4em; color: var(--cyan); text-transform: uppercase;
           animation: blink 1.2s steps(2) infinite;
         }
         @keyframes blink { 50% { opacity: 0.25; } }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
@@ -35,10 +36,10 @@ export function LiveFeed({ max = 12 }: { max?: number }) {
       {shown.map((ev, i) => (
         <FeedRow key={ev.id} ev={ev} index={i} />
       ))}
-      <style>{`
+      <Style>{`
         .feed { display: flex; flex-direction: column; gap: calc(var(--u) * 3); height: 100%; overflow: hidden; }
         .empty { color: var(--dim); font-size: var(--fs-xs); letter-spacing: 0.1em; }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
@@ -72,7 +73,7 @@ function FeedRow({ ev, index }: { ev: FeedEvent; index: number }) {
       <span className="typed body" style={{ color: index === 0 ? COLORS.ink : undefined }}>
         {text}
       </span>
-      <style>{`
+      <Style>{`
         .feed { font-family: "JetBrains Mono", monospace; font-size: var(--fs-xs); }
         .feed-row { display: flex; align-items: baseline; gap: calc(var(--u) * 7); line-height: 1.5; }
         .feed-row .ts { opacity: 0.75; flex: 0 0 auto; }
@@ -82,7 +83,7 @@ function FeedRow({ ev, index }: { ev: FeedEvent; index: number }) {
         }
         .feed-row .body { flex: 1; min-width: 0; }
         .empty { letter-spacing: 0.12em; }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Style } from "@/components/Style";
 import { useStore } from "@/lib/store";
 
 /**
@@ -284,7 +285,7 @@ export function AgentSwarm() {
     hopSide(e.side === "buy" || e.side === "bid" ? "bull" : "bear");
   }, [events, symbol]);
 
-  // ---- eyes: cursor tracking + saccades ---------------------------------
+  // ---- eyes: each agent looks at ITS OWN thing (partner, own radar, cursor, elsewhere) ----
   useEffect(() => {
     if (calm) return;
     const onMove = (e: PointerEvent) => {
@@ -294,27 +295,55 @@ export function AgentSwarm() {
     const id = setInterval(() => {
       const base = baseRef.current;
       const targ = targRef.current;
-      for (let i = 0; i < MAX_AGENTS; i++) {
-        if (Math.random() < 0.035) targ[i] = { x: rr(-1.3, 1.3), y: rr(-0.8, 0.8) };
-        base[i].x += (targ[i].x - base[i].x) * 0.16;
-        base[i].y += (targ[i].y - base[i].y) * 0.16;
-      }
-      const p = ptrRef.current;
+      const posNow = posRef.current;
+      const dlg = dialogRef.current;
+      const lks = linksRef.current;
       const field = fieldRef.current;
       const nodes = field ? Array.from(field.querySelectorAll<HTMLElement>("[data-agent]")) : [];
+      const ptr = ptrRef.current;
+      const fieldBox = field ? field.getBoundingClientRect() : null;
+      const ptrInField =
+        !!ptr &&
+        !!fieldBox &&
+        ptr.x >= fieldBox.left &&
+        ptr.x <= fieldBox.right &&
+        ptr.y >= fieldBox.top &&
+        ptr.y <= fieldBox.bottom;
+
       const next: Look[] = [];
       for (let i = 0; i < MAX_AGENTS; i++) {
+        // 1) private wander target — every agent drifts its own way
+        if (Math.random() < 0.04) targ[i] = { x: rr(-1.4, 1.4), y: rr(-0.9, 0.9) };
+        base[i].x += (targ[i].x - base[i].x) * 0.14;
+        base[i].y += (targ[i].y - base[i].y) * 0.14;
         let x = base[i].x;
         let y = base[i].y;
-        const el = nodes.find((n) => Number(n.dataset.agent) === i);
-        if (p && el) {
-          const b = el.getBoundingClientRect();
-          const dx = (p.x - (b.left + b.width / 2)) / (b.width * 4);
-          const dy = (p.y - (b.top + b.height / 2)) / (b.height * 4);
-          x += clamp(dx, -1.2, 1.2);
-          y += clamp(dy, -1.2, 1.2);
+
+        // 2) look at the talk partner (dialog beats cable)
+        let partner = -1;
+        if (dlg && (dlg.a === i || dlg.b === i)) partner = dlg.a === i ? dlg.b : dlg.a;
+        else {
+          const l = lks.find((k) => k.a === i || k.b === i);
+          if (l) partner = l.a === i ? l.b : l.a;
         }
-        next.push({ x: clamp(x, -1.8, 1.8), y: clamp(y, -1.3, 1.3) });
+        if (partner >= 0 && posNow[partner] && posNow[i]) {
+          x = clamp((posNow[partner].x - posNow[i].x) / 4.5, -1.7, 1.7);
+          y = clamp((posNow[partner].y - posNow[i].y) / 5.5, -1.5, 1.5);
+        } else if (i % 4 === 1 && radarsRef.current.some((r) => r.idx === i)) {
+          // 3) glances up at its own radar scope
+          x = 0.9;
+          y = -1.1;
+        } else if (i % 3 === 0 && ptrInField && ptr) {
+          // 4) only a third of the squad tracks the cursor
+          const el = nodes.find((n) => Number(n.dataset.agent) === i);
+          if (el) {
+            const b = el.getBoundingClientRect();
+            x += clamp((ptr.x - (b.left + b.width / 2)) / (b.width * 4), -1.3, 1.3);
+            y += clamp((ptr.y - (b.top + b.height / 2)) / (b.height * 4), -1.3, 1.3);
+          }
+        }
+        // else: keeps its own wander gaze — squads end up looking in different windows
+        next.push({ x: clamp(x, -1.8, 1.8), y: clamp(y, -1.4, 1.4) });
       }
       setLooks(next);
     }, 170);
@@ -322,6 +351,7 @@ export function AgentSwarm() {
       window.removeEventListener("pointermove", onMove);
       clearInterval(id);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [calm]);
 
   // ---- life loop: walking, cables, talks, analysis ----------------------
@@ -561,7 +591,7 @@ export function AgentSwarm() {
         );
       })}
 
-      <style>{agentCss}</style>
+      <Style>{agentCss}</Style>
     </div>
   );
 }
@@ -664,7 +694,7 @@ export function MoodSquad() {
           </div>
         ))}
       </div>
-      <style>{moodCss}</style>
+      <Style>{moodCss}</Style>
     </div>
   );
 }
@@ -735,30 +765,41 @@ const agentCss = `
 }
 .agent.hop { animation: ag-hop 0.65s cubic-bezier(0.34, 0.12, 0.28, 1) 1; }
 
-/* dome over a talking agent — colour of their side */
+/* dome over a talking agent — small, glassy, transparent colour of their side */
 .dome {
-  position: absolute; left: 50%; bottom: 8%;
-  width: 215%; aspect-ratio: 2 / 1.25;
+  position: absolute; left: 50%; bottom: 6%;
+  width: 168%; aspect-ratio: 2 / 1.02;
   transform: translateX(-50%);
-  border-radius: 50% 50% 14% 14% / 74% 74% 8% 8%;
-  border: 1.5px solid; border-bottom: none;
+  border-radius: 50% 50% 18% 18% / 82% 82% 10% 10%;
+  border: 1px solid; border-bottom: none;
   pointer-events: none; z-index: 1;
-  animation: dome-in 0.32s ease both, dome-pulse 1.05s ease-in-out 0.32s infinite;
+  animation: dome-in 0.3s ease both, dome-pulse 1.6s ease-in-out 0.3s infinite;
+}
+.dome::before {
+  /* thin inner highlight arc — glass shine */
+  content: ""; position: absolute; left: 16%; right: 16%; top: 12%; height: 34%;
+  border-radius: 50%; border-top: 1px solid rgba(255, 255, 255, 0.45);
+  opacity: 0.7; pointer-events: none;
+}
+.dome::after {
+  /* soft base light on the ground under the agent */
+  content: ""; position: absolute; left: 18%; right: 18%; bottom: -3px; height: 3px;
+  border-radius: 50%; filter: blur(2px); opacity: 0.8;
 }
 .dome.d-bull {
-  border-color: rgba(25, 245, 138, 0.85);
-  background:
-    radial-gradient(130% 100% at 50% 105%, rgba(25,245,138,0.32), rgba(25,245,138,0.05) 72%);
-  box-shadow: 0 0 calc(var(--u) * 14) rgba(25, 245, 138, 0.45), inset 0 -8px 18px rgba(25, 245, 138, 0.16);
+  border-color: rgba(25, 245, 138, 0.75);
+  background: radial-gradient(130% 140% at 50% 125%, rgba(25,245,138,0.22), rgba(25,245,138,0.05) 62%, rgba(25,245,138,0) 84%);
+  box-shadow: 0 0 calc(var(--u) * 9) rgba(25, 245, 138, 0.3), inset 0 0 calc(var(--u) * 10) rgba(25, 245, 138, 0.08);
 }
+.dome.d-bull::after { background: rgba(25, 245, 138, 0.7); }
 .dome.d-bear {
-  border-color: rgba(255, 59, 92, 0.85);
-  background:
-    radial-gradient(130% 100% at 50% 105%, rgba(255,59,92,0.32), rgba(255,59,92,0.05) 72%);
-  box-shadow: 0 0 calc(var(--u) * 14) rgba(255, 59, 92, 0.45), inset 0 -8px 18px rgba(255, 59, 92, 0.16);
+  border-color: rgba(255, 59, 92, 0.75);
+  background: radial-gradient(130% 140% at 50% 125%, rgba(255,59,92,0.22), rgba(255,59,92,0.05) 62%, rgba(255,59,92,0) 84%);
+  box-shadow: 0 0 calc(var(--u) * 9) rgba(255, 59, 92, 0.3), inset 0 0 calc(var(--u) * 10) rgba(255, 59, 92, 0.08);
 }
+.dome.d-bear::after { background: rgba(255, 59, 92, 0.7); }
 @keyframes dome-in { from { opacity: 0; transform: translateX(-50%) scale(0.55); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
-@keyframes dome-pulse { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+@keyframes dome-pulse { 0%,100% { opacity: 0.88; } 50% { opacity: 1; } }
 
 /* radar scope — "I am analysing right now" */
 .radar {
@@ -874,6 +915,6 @@ const moodCss = `
 .ms-cables { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 .ms-cables .cable { stroke: #2DD4FF; stroke-width: 1.4; }
 .mood-squad .speech { font-size: calc(var(--fs-xs) * 0.72); padding: calc(var(--u)*3) calc(var(--u)*5); }
-.mood-squad .dome { width: 200%; }
+.mood-squad .dome { width: 158%; }
 @media (max-width: 1024px) { .mood-squad { --ag-mini: calc(var(--u) * 20); } }
 `;

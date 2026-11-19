@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Style } from "@/components/Style";
 import { useStore } from "@/lib/store";
 import { COLORS } from "@/lib/format";
 import { MoodSquad } from "@/components/panels/Agents";
@@ -93,11 +94,11 @@ export function FngGauge() {
 
       <MoodSquad />
 
-      <style>{`
+      <Style>{`
         .fng { display: flex; flex-direction: column; height: 100%; min-height: 0; }
         .gauge { flex: 1; min-height: 0; width: 100%; }
         .legend { display: flex; justify-content: space-between; font-size: calc(var(--fs-xs) * 0.85); letter-spacing: 0.1em; }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

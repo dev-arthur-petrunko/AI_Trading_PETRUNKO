@@ -1,6 +1,7 @@
 "use client";
 
 import { StoreProvider, useStore } from "@/lib/store";
+import { Style } from "./Style";
 import { TopBar, TitleBlock, CoinPills, Ticker, Disclaimer, EfoToggle } from "@/components/Chrome";
 import { IntroOverlay, LiveFeed } from "@/components/FeedPanels";
 import { Panel } from "@/components/Panel";
@@ -70,7 +71,7 @@ function Dashboard() {
         </div>
       </Panel>
 
-      <style>{`
+      <Style>{`
         .dash-grid {
           display: grid;
           grid-template-columns: repeat(12, 1fr);
@@ -93,7 +94,7 @@ function Dashboard() {
           .dash-grid .panel { min-height: calc(var(--u) * 240); }
           .dash-grid .g-sphere { min-height: calc(var(--u) * 420); order: -1; }
         }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
@@ -109,10 +110,10 @@ function Content() {
       {sub === "analogs" && <AnalogsView />}
       {sub === "backtest" && <BacktestView />}
       {sub === "about" && <AboutView />}
-      <style>{`
+      <Style>{`
         .content { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: calc(var(--u) * 8) calc(var(--u) * 12) calc(var(--u) * 6); }
         @media (max-width: 1024px) { .content { padding: calc(var(--u) * 8); } }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
@@ -126,7 +127,7 @@ function FooterLine() {
       </span>
       <Disclaimer compact />
       <EfoToggle />
-      <style>{`
+      <Style>{`
         .foot {
           display: flex; align-items: center; gap: calc(var(--u) * 14);
           padding: calc(var(--u) * 4) calc(var(--u) * 12);
@@ -135,7 +136,7 @@ function FooterLine() {
         }
         .foot .disclaimer { flex: 1; }
         @media (max-width: 1024px) { .foot { flex-wrap: wrap; justify-content: center; } }
-      `}</style>
+      `}</Style>
     </footer>
   );
 }
@@ -156,7 +157,7 @@ function Shell() {
           <Ticker />
         </div>
       </div>
-      <style>{`
+      <Style>{`
         .shell-root { min-height: 100vh; background: var(--bg); }
         .stage-inner {
           position: relative; z-index: 10;
@@ -167,7 +168,7 @@ function Shell() {
           .stage { display: block; }
           .stage-inner { height: auto; min-height: 100vh; }
         }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

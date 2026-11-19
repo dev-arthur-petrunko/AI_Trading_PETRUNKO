@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Style } from "@/components/Style";
 import {
   createChart,
   ColorType,
@@ -126,7 +127,7 @@ export function LiveCandles({ compact = false }: { compact?: boolean }) {
         <span className="mono cnt">{candles.length} свечей</span>
       </div>
       <div className="chart" ref={holder} />
-      <style>{`
+      <Style>{`
         .candles-wrap { display: flex; flex-direction: column; height: 100%; min-height: 0; }
         .tf-bar { display: flex; gap: calc(var(--u) * 4); align-items: center; flex: 0 0 auto; margin-bottom: calc(var(--u) * 4); }
         .tf-btn {
@@ -139,7 +140,7 @@ export function LiveCandles({ compact = false }: { compact?: boolean }) {
         .grow { flex: 1; }
         .cnt { font-size: calc(var(--fs-xs) * 0.85); color: var(--dim); }
         .chart { flex: 1; min-height: 0; }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

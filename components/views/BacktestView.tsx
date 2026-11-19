@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Style } from "@/components/Style";
 import { useStore, apiGet } from "@/lib/store";
 import { Panel } from "@/components/Panel";
 import { COLORS, fmtPct, fmtDate, fmtNum } from "@/lib/format";
@@ -89,7 +90,7 @@ export function BacktestView() {
         )}
       </Panel>
 
-      <style>{`
+      <Style>{`
         .bt { display: flex; flex-direction: column; flex: 1; min-height: 0; }
         .bt-main { flex: 1; }
         .wait { display: flex; align-items: center; justify-content: center; height: 100%; letter-spacing: 0.1em; }
@@ -115,7 +116,7 @@ export function BacktestView() {
           .kpis { grid-template-columns: repeat(2, 1fr); }
           .cols { grid-template-columns: 1fr; }
         }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
@@ -152,9 +153,9 @@ function CalibStrip({ series }: { series: { predicted: number; hit: boolean; con
       <div className="mono dim" style={{ fontSize: "calc(var(--fs-xs) * 0.8)" }}>
         уверенность сигнала (0.5–0.95), зелёный = сбылся, красный = нет
       </div>
-      <style>{`
+      <Style>{`
         .calibstrip { margin-bottom: calc(var(--u) * 14); background: rgba(5,10,18,0.5); padding: calc(var(--u) * 6); }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
@@ -178,13 +179,13 @@ function Equity({ equity }: { equity: { strategy: number; hold: number } }) {
         <div className="fill-s" style={{ width: `${Math.max(4, Math.min(100, 50 + pctS / 2))}%` }} />
         <div className="mid" />
       </div>
-      <style>{`
+      <Style>{`
         .eq { font-size: var(--fs-xs); display: flex; flex-direction: column; gap: calc(var(--u) * 6); }
         .eq .row { display: flex; justify-content: space-between; }
         .eq .bar { position: relative; height: calc(var(--u) * 10); background: rgba(27,58,92,0.4); }
         .eq .fill-s { height: 100%; background: linear-gradient(90deg, rgba(45,212,255,0.5), rgba(25,245,138,0.6)); transition: width 0.6s; }
         .eq .mid { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--amber); }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

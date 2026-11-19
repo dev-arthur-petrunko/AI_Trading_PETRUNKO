@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Style } from "@/components/Style";
 import {
   createChart,
   ColorType,
@@ -116,7 +117,7 @@ export function HistoryView() {
         </p>
       </Panel>
 
-      <style>{`
+      <Style>{`
         .hs { display: grid; grid-template-columns: repeat(12, 1fr); gap: calc(var(--u) * 8); flex: 1; min-height: 0; }
         .hs-main { grid-column: span 9; }
         .hs-stat { grid-column: span 3; }
@@ -130,7 +131,7 @@ export function HistoryView() {
         .srow .v { color: var(--ink); font-variant-numeric: tabular-nums; }
         .cap { font-size: calc(var(--fs-xs) * 0.88); line-height: 1.6; margin-top: calc(var(--u) * 12); border-left: 2px solid var(--amber); padding-left: calc(var(--u) * 8); }
         @media (max-width: 1024px) { .hs { display: flex; flex-direction: column; } .hs .panel { min-height: calc(var(--u) * 300); } }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

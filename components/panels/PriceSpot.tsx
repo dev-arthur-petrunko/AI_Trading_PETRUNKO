@@ -1,6 +1,7 @@
 "use client";
 
 import { useStore } from "@/lib/store";
+import { Style } from "@/components/Style";
 import { RollNumber } from "@/components/RollNumber";
 import { fmtPrice, fmtCompact, fmtPct } from "@/lib/format";
 
@@ -40,7 +41,7 @@ export function PriceSpot() {
         {stat?.altPrice ? ` · зеркало ${fmtPrice(stat.altPrice, symbol)}` : ""}
       </div>
 
-      <style>{`
+      <Style>{`
         .spot { display: flex; flex-direction: column; height: 100%; gap: calc(var(--u) * 6); }
         .row1 { display: flex; justify-content: space-between; align-items: center; }
         .sym { font-size: var(--fs-m); letter-spacing: 0.16em; font-weight: 700; color: var(--ink); }
@@ -60,7 +61,7 @@ export function PriceSpot() {
         @media (max-width: 1024px) {
           .price { font-size: calc(var(--u) * 46); }
         }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

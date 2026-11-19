@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Style } from "@/components/Style";
 import { useStore, apiGet } from "@/lib/store";
 import { COLORS, fmtPct, md, monthKey } from "@/lib/format";
 import type { Analog } from "@/lib/types";
@@ -127,7 +128,7 @@ export function AnalogTimeline() {
         </div>
       )}
 
-      <style>{`
+      <Style>{`
         .atl { display: flex; flex-direction: column; height: 100%; min-height: 0; gap: calc(var(--u) * 6); }
         .chart-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
         .hist { flex: 1; min-height: 0; width: 100%; }
@@ -140,7 +141,7 @@ export function AnalogTimeline() {
         .ov-svg { width: 100%; height: calc(var(--u) * 90); margin-top: calc(var(--u) * 5); background: rgba(5,10,18,0.5); }
         .ov-legend { display: flex; gap: calc(var(--u) * 12); font-size: calc(var(--fs-xs) * 0.8); }
         .ov-legend i { display: inline-block; width: calc(var(--u) * 10); height: 3px; margin-right: 5px; vertical-align: middle; }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { Style } from "@/components/Style";
 import { useStore } from "@/lib/store";
 import { fmtPrice, fmtCompact } from "@/lib/format";
 
@@ -82,7 +83,7 @@ export function OrderBook() {
         )}
       </div>
 
-      <style>{`
+      <Style>{`
         .ob { display: flex; flex-direction: column; height: 100%; gap: calc(var(--u) * 5); min-height: 0; }
         .imb { flex: 0 0 auto; }
         .imb-bar { position: relative; height: calc(var(--u) * 8); background: rgba(255,59,92,0.2); overflow: hidden; }
@@ -99,7 +100,7 @@ export function OrderBook() {
         .mid { display: flex; justify-content: space-between; font-size: var(--fs-s); color: var(--cyan); letter-spacing: 0.08em; border-top: 1px dashed rgba(27,58,92,0.8); padding-top: calc(var(--u) * 4); }
         .wall-tag { font-size: calc(var(--fs-xs) * 0.9); }
         .empty { color: var(--dim); font-size: var(--fs-xs); }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Style } from "@/components/Style";
 import * as THREE from "three";
 import { useStore } from "@/lib/store";
 import type { ForecastBrief, Analog } from "@/lib/types";
@@ -554,7 +555,7 @@ export function NeuralSphere() {
 
       <div className="summary mono">{p?.text ?? "поиск исторических аналогов…"}</div>
 
-      <style>{`
+      <Style>{`
         .sphere-wrap { position: relative; height: 100%; min-height: 0; overflow: hidden; }
         .sphere-mount { position: absolute; inset: 0; }
         .sphere-mount canvas { display: block; }
@@ -594,7 +595,7 @@ export function NeuralSphere() {
           .sphere-wrap { min-height: calc(var(--u) * 360); }
           .pole .v { font-size: calc(var(--u) * 30); }
         }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

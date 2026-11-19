@@ -1,6 +1,7 @@
 "use client";
 
 import { useStore } from "@/lib/store";
+import { Style } from "@/components/Style";
 import { Panel } from "@/components/Panel";
 import { ForecastFan } from "@/components/panels/ForecastFan";
 import { COLORS, fmtPct, fmtNum } from "@/lib/format";
@@ -112,7 +113,7 @@ export function ForecastView() {
         <ForecastFan />
       </Panel>
 
-      <style>{`
+      <Style>{`
         .fc { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: calc(var(--u) * 240) calc(var(--u) * 210) 1fr; gap: calc(var(--u) * 8); flex: 1; min-height: 0; }
         .fc-prob { grid-column: span 5; }
         .fc-why { grid-column: span 4; }
@@ -138,7 +139,7 @@ export function ForecastView() {
         .hz td { padding: calc(var(--u) * 5) 0; border-bottom: 1px solid rgba(27,58,92,0.35); }
         .note { margin-top: auto; font-size: calc(var(--fs-xs) * 0.85); line-height: 1.5; padding-top: calc(var(--u) * 6); }
         @media (max-width: 1024px) { .fc { display: flex; flex-direction: column; } .fc .panel { min-height: calc(var(--u) * 240); } }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

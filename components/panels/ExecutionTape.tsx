@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Style } from "@/components/Style";
 import { useStore } from "@/lib/store";
 import { COLORS, fmtPct, hms } from "@/lib/format";
 
@@ -38,7 +39,7 @@ export function ExecutionTape({ max = 14 }: { max?: number }) {
           );
         })}
       </div>
-      <style>{`
+      <Style>{`
         .tape { display: flex; flex-direction: column; height: 100%; min-height: 0; font-family: "JetBrains Mono", monospace; }
         .thead, .trow { display: grid; grid-template-columns: 1.1fr 1.3fr 1fr 1fr 1fr; gap: calc(var(--u) * 6); padding: calc(var(--u) * 2) calc(var(--u) * 4); font-size: calc(var(--fs-xs) * 0.9); }
         .thead { color: var(--dim); letter-spacing: 0.1em; border-bottom: 1px solid rgba(27,58,92,0.7); flex: 0 0 auto; }
@@ -48,7 +49,7 @@ export function ExecutionTape({ max = 14 }: { max?: number }) {
         .empty { color: var(--dim); font-size: var(--fs-xs); padding: calc(var(--u) * 6); }
         .faded { opacity: 0.4; }
         @media (max-width: 1024px) { .thead, .trow { grid-template-columns: 1fr 1.2fr 1fr 1fr; } .thead span:nth-child(4), .trow span:nth-child(4) { display: none; } }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

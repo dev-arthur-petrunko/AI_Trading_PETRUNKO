@@ -1,6 +1,7 @@
 "use client";
 
 import { useStore } from "@/lib/store";
+import { Style } from "@/components/Style";
 import { Panel } from "@/components/Panel";
 import { Disclaimer, EfoToggle } from "@/components/Chrome";
 
@@ -71,7 +72,7 @@ export function AboutView() {
         </div>
       </Panel>
 
-      <style>{`
+      <Style>{`
         .ab { display: flex; flex-direction: column; flex: 1; min-height: 0; }
         .ab-main { flex: 1; }
         .cols { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 24); height: 100%; overflow: auto; padding-right: calc(var(--u) * 8); }
@@ -86,7 +87,7 @@ export function AboutView() {
         .efo { margin-top: calc(var(--u) * 12); display: flex; align-items: center; gap: calc(var(--u) * 8); }
         .disc-foot { padding-top: calc(var(--u) * 8); border-top: 1px dashed rgba(27,58,92,0.7); margin-top: calc(var(--u) * 8); }
         @media (max-width: 1024px) { .cols { grid-template-columns: 1fr; } }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

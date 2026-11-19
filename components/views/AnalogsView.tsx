@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Style } from "@/components/Style";
 import { useStore, apiGet } from "@/lib/store";
 import { Panel } from "@/components/Panel";
 import { AnalogTimeline } from "@/components/panels/AnalogTimeline";
@@ -28,8 +29,14 @@ export function AnalogsView() {
   useEffect(() => {
     let dead = false;
     apiGet<Resp>("/api/analogs", { symbol, top: 50 })
-      .then((r) => !dead && setData(r))
-      .catch(() => {});
+      .then((r) => {
+        if (!dead) setData(r);
+      })
+      .catch((e) => {
+        // keep silent in UI, just don't leave the panel in loading state
+        console.warn("[analogs]", e instanceof Error ? e.message : e);
+        if (!dead) setData({ symbol, analogs: [], windowLen: 0, horizonDays: 0, tf: "1h", t0: 0, t1: 0, current: 0, currentT: 0 });
+      });
     return () => {
       dead = true;
     };
@@ -74,7 +81,7 @@ export function AnalogsView() {
         </p>
       </Panel>
 
-      <style>{`
+      <Style>{`
         .an { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: calc(var(--u) * 300) 1fr; gap: calc(var(--u) * 8); flex: 1; min-height: 0; }
         .an-tl { grid-column: span 8; grid-row: span 2; }
         .an-list { grid-column: span 4; }
@@ -89,7 +96,7 @@ export function AnalogsView() {
         .how { font-size: calc(var(--fs-xs) * 0.95); line-height: 1.75; color: var(--dim); }
         .empty { padding: calc(var(--u) * 10); }
         @media (max-width: 1024px) { .an { display: flex; flex-direction: column; } .an .panel { min-height: calc(var(--u) * 300); } }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

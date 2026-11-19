@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Style } from "@/components/Style";
 import { useStore } from "@/lib/store";
 import { COLORS, fmtPct, fmtNum } from "@/lib/format";
 
@@ -116,7 +117,7 @@ export function MetricCards() {
           </div>
         );
       })}
-      <style>{`
+      <Style>{`
         .metrics { display: flex; flex-direction: column; gap: calc(var(--u) * 7); height: 100%; overflow: hidden; }
         .mcard { border-left: calc(var(--u) * 3) solid var(--stroke); padding: calc(var(--u) * 4) calc(var(--u) * 8); background: rgba(5,10,18,0.35); }
         .mrow { display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--u) * 6); }
@@ -126,7 +127,7 @@ export function MetricCards() {
         .mfill { height: 100%; transition: width 0.6s ease; }
         .fnote { font-size: calc(var(--fs-xs) * 0.8); margin-top: calc(var(--u) * 3); letter-spacing: 0.06em; }
         .spark { display: block; margin-top: calc(var(--u) * 3); }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

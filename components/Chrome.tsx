@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Style } from "./Style";
 import { useStore, SYMBOLS } from "@/lib/store";
 import { utcClock, fmtPrice, fmtCompact, fmtPct, COLORS } from "@/lib/format";
 import type { Sub } from "@/lib/store";
@@ -81,7 +82,7 @@ export function TopBar() {
         </div>
       </div>
 
-      <style>{`
+      <Style>{`
         .topbar {
           height: calc(var(--u) * 56);
           min-height: 44px;
@@ -127,7 +128,7 @@ export function TopBar() {
           .nav { order: 3; width: 100%; overflow-x: auto; }
           .right { flex-wrap: wrap; }
         }
-      `}</style>
+      `}</Style>
     </header>
   );
 }
@@ -160,7 +161,7 @@ export function TitleBlock() {
         AI TRADING PETRUNKO
       </h1>
       <p className="sub mono">Real-time market intelligence · BTC · ETH · SOL · BNB · XRP · DOGE · ADA · AVAX</p>
-      <style>{`
+      <Style>{`
         .title-block { text-align: center; padding: calc(var(--u) * 6) 0 calc(var(--u) * 4); position: relative; z-index: 5; }
         h1 {
           margin: 0;
@@ -175,7 +176,7 @@ export function TitleBlock() {
           h1 { font-size: calc(var(--u) * 34); letter-spacing: 0.16em; }
           .sub { letter-spacing: 0.14em; }
         }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
@@ -205,7 +206,7 @@ export function CoinPills() {
           );
         })}
       </div>
-      <style>{`
+      <Style>{`
         .pills-wrap { display: flex; justify-content: center; padding: calc(var(--u) * 4) 0; }
         .pills { display: flex; gap: calc(var(--u) * 6); flex-wrap: wrap; justify-content: center; }
         .pill {
@@ -222,7 +223,7 @@ export function CoinPills() {
         }
         .pill .chg { font-size: calc(var(--fs-xs) * 0.92); }
         .pill.on .chg { color: #03130b !important; }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
@@ -258,7 +259,7 @@ export function Ticker() {
         {strip}
         {strip}
       </div>
-      <style>{`
+      <Style>{`
         .ticker { height: calc(var(--u) * 28); min-height: 24px; font-size: var(--fs-s); position: relative; z-index: 20; }
         .ticker-inner { display: inline-block; white-space: nowrap; line-height: calc(var(--u) * 28); }
         .tick-item { cursor: pointer; padding: 0 calc(var(--u) * 4); }
@@ -266,7 +267,7 @@ export function Ticker() {
         .tick-item.active b { color: var(--bull); }
         .tick-item:hover { background: rgba(45,212,255,0.08); }
         .dim { color: var(--dim); opacity: 0.7; }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
@@ -280,14 +281,14 @@ export function EfoToggle() {
       title="Упрощённая анимация (также включается автоматически при prefers-reduced-motion)"
     >
       {eco || reduced ? "◼ ЭКО-РЕЖИМ" : "◻ ЭКО-РЕЖИМ"}
-      <style>{`
+      <Style>{`
         .eco {
           background: rgba(10,20,35,0.8); border: 1px solid var(--stroke); color: var(--dim);
           font-family: "JetBrains Mono", monospace; font-size: var(--fs-xs);
           padding: calc(var(--u) * 5) calc(var(--u) * 8); cursor: pointer; letter-spacing: 0.08em;
         }
         .eco.on { color: var(--amber); border-color: var(--amber); box-shadow: 0 0 10px rgba(255,176,32,0.35); }
-      `}</style>
+      `}</Style>
     </button>
   );
 }
@@ -297,10 +298,10 @@ export function Disclaimer({ compact = false }: { compact?: boolean }) {
     <p className={`disclaimer ${compact ? "compact" : ""}`}>
       Образовательный проект. Не является инвестиционной рекомендацией. Торговля криптовалютой связана с
       высоким риском потери средств.
-      <style>{`
+      <Style>{`
         .disclaimer { color: var(--dim); font-size: var(--fs-xs); letter-spacing: 0.06em; text-align: center; margin: calc(var(--u) * 6) 0 0; }
         .disclaimer.compact { margin: 0; }
-      `}</style>
+      `}</Style>
     </p>
   );
 }

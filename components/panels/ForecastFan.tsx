@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Style } from "@/components/Style";
 import { useStore, apiGet } from "@/lib/store";
 import { COLORS, fmtPct } from "@/lib/format";
 import type { Candle } from "@/lib/types";
@@ -131,7 +132,7 @@ export function ForecastFan() {
         медиана {fmtPct(data.median[hz], 1)} · 50% зона [{fmtPct(data.implied[hz].p50, 1)}] · аналогов {data.analogs.length} · пересчёт {new Date(data.computedAt).toLocaleTimeString("ru-RU")}
       </div>
 
-      <style>{`
+      <Style>{`
         .fan { display: flex; flex-direction: column; height: 100%; min-height: 0; gap: calc(var(--u) * 4); }
         .fan-empty { color: var(--dim); font-size: var(--fs-xs); display: flex; align-items: center; justify-content: center; height: 100%; }
         .fan-bar { display: flex; align-items: center; gap: calc(var(--u) * 5); flex: 0 0 auto; }
@@ -142,7 +143,7 @@ export function ForecastFan() {
         .probs { font-size: calc(var(--fs-xs) * 0.95); display: flex; gap: calc(var(--u) * 8); }
         .fan-svg { flex: 1; min-height: 0; width: 100%; background: rgba(5,10,18,0.45); }
         .fan-note { font-size: calc(var(--fs-xs) * 0.82); letter-spacing: 0.05em; flex: 0 0 auto; }
-      `}</style>
+      `}</Style>
     </div>
   );
 }

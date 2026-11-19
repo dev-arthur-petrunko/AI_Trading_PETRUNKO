@@ -1,6 +1,7 @@
 "use client";
 
 import { useStore } from "@/lib/store";
+import { Style } from "@/components/Style";
 import { Panel } from "@/components/Panel";
 import { LiveCandles } from "@/components/panels/LiveCandles";
 import { OrderBook } from "@/components/panels/OrderBook";
@@ -53,7 +54,7 @@ export function MarketsView() {
         </div>
       </Panel>
 
-      <style>{`
+      <Style>{`
         .mk { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: calc(var(--u) * 300) calc(var(--u) * 250) 1fr; gap: calc(var(--u) * 8); flex: 1; min-height: 0; }
         .mk-chart { grid-column: span 5; }
         .mk-tv { grid-column: span 4; }
@@ -72,7 +73,7 @@ export function MarketsView() {
           .mkt .h span:nth-child(n+5), .mkt .r span:nth-child(n+5) { display: none; }
           .mkt .h, .mkt .r { grid-template-columns: 30px 1fr 1.3fr 1fr; }
         }
-      `}</style>
+      `}</Style>
     </div>
   );
 }
