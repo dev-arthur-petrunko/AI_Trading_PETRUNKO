@@ -540,7 +540,15 @@ export function DashboardAgents() {
     setPos(place);
   }, [calm, ready, counts.bull, counts.bear]);
 
-  if (!ready) return null;
+  if (!ready) {
+    // MUST keep the container mounted: the measure effect needs overlayRef + .dash-grid
+    // to compute panel rects; returning null here would deadlock (ready never flips).
+    return (
+      <div className={`agents-overlay${calm ? " calm" : ""}`} ref={overlayRef} aria-hidden>
+        <Style>{agentCss}</Style>
+      </div>
+    );
+  }
 
   const sph = rects["g-sphere"];
   const total = counts.bull + counts.bear;
