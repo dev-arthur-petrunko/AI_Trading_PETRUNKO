@@ -278,28 +278,38 @@ export function DashboardAgents() {
     if (!el || !grid) return;
     const measure = () => {
       const box = el.getBoundingClientRect();
-      const next: Rects = {};
+      // merge — never wipe existing rects (a transient missing node must not deadlock roaming)
+      const next: Rects = { ...rectsRef.current };
       for (const id of PANEL_IDS) {
         const node = grid.querySelector("." + id);
         if (!node) continue;
         const r = node.getBoundingClientRect();
-        next[id] = { x: r.left - box.left, y: r.top - box.top, w: r.width, h: r.height };
+        if (r.width > 0 && r.height > 0) {
+          next[id] = { x: r.left - box.left, y: r.top - box.top, w: r.width, h: r.height };
+        }
       }
+      // fallback zone = whole grid, so agents still roam even if a panel rect is missing
+      const gr = grid.getBoundingClientRect();
+      if (gr.width > 0 && gr.height > 0) {
+        next["__grid"] = { x: gr.left - box.left, y: gr.top - box.top, w: gr.width, h: gr.height };
+      }
+      rectsRef.current = next;
       setRects(next);
       if (Object.keys(next).length >= 5) setReady(true);
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(grid as Element);
+    const iv = setInterval(measure, 3500); // self-heal: late panels / layout shifts / intro reveal
     const t1 = setTimeout(measure, 600);
     const t2 = setTimeout(measure, 2600); // after intro reveal
-    return () => { ro.disconnect(); clearTimeout(t1); clearTimeout(t2); };
+    return () => { ro.disconnect(); clearInterval(iv); clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
   const inside = (id: string): { x: number; y: number } | null => {
-    const r = rectsRef.current[id];
+    const r = rectsRef.current[id] || rectsRef.current["__grid"];
     if (!r) return null;
-    if (id === "g-sphere") {
+    if (id === "g-sphere" && rectsRef.current["g-sphere"]) {
       const side = Math.random() < 0.5;
       return {
         x: r.x + (side ? rr(0.05, 0.2) : rr(0.78, 0.93)) * r.w,
