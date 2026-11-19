@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Style } from "@/components/Style";
 import * as THREE from "three";
 import { useStore } from "@/lib/store";
 import type { ForecastBrief, Analog } from "@/lib/types";
 import { fmtPct } from "@/lib/format";
-import { AgentSwarm } from "@/components/panels/Agents";
 
 /**
  * NEURAL SPHERE (Three.js):
@@ -517,6 +516,18 @@ export function NeuralSphere() {
     apiRef.current?.setForecast(forecast);
   }, [forecast]);
 
+  // roaming agents transmit window readings into the core
+  const [ingest, setIngest] = useState({ n: 0, side: "", label: "", at: 0 });
+  useEffect(() => {
+    const onPacket = (e: Event) => {
+      const d = (e as CustomEvent).detail as { side: string; panel: string; label: string };
+      setIngest((p) => ({ n: p.n + 1, side: d.side, label: d.label, at: Date.now() }));
+      apiRef.current?.burst();
+    };
+    window.addEventListener("aps-packet", onPacket);
+    return () => window.removeEventListener("aps-packet", onPacket);
+  }, []);
+
   // trades → particle bursts
   useEffect(() => {
     const e = events[0];
@@ -534,7 +545,6 @@ export function NeuralSphere() {
     <div className="sphere-wrap" key={`${symbol}-${swapKey}`}>
       <div className="sphere-mount" ref={mountRef} />
       <div className="tip mono" ref={tipRef} />
-      <AgentSwarm />
 
       <div className="pole up">
         <span className="k">UP</span>
@@ -553,6 +563,7 @@ export function NeuralSphere() {
         <div className="edge amber glow-amber">NO CLEAR EDGE</div>
       )}
 
+      <div className={"recv-badge mono" + (ingest.at && Date.now() - ingest.at < 1400 ? " on " + ingest.side : "")} key={ingest.at}>ПРИЁМ {ingest.n}{ingest.label ? " · " + ingest.label : ""}</div>
       <div className="summary mono">{p?.text ?? "поиск исторических аналогов…"}</div>
 
       <Style>{`

@@ -1,16 +1,17 @@
 "use client";
 
 import { StoreProvider, useStore } from "@/lib/store";
-import { Style } from "./Style";
 import { TopBar, TitleBlock, CoinPills, Ticker, Disclaimer, EfoToggle } from "@/components/Chrome";
 import { IntroOverlay, LiveFeed } from "@/components/FeedPanels";
 import { Panel } from "@/components/Panel";
+import { Style } from "@/components/Style";
 import { PriceSpot } from "@/components/panels/PriceSpot";
 import { LiveCandles } from "@/components/panels/LiveCandles";
 import { OrderBook } from "@/components/panels/OrderBook";
 import { FngGauge } from "@/components/panels/FngGauge";
 import { MetricCards } from "@/components/panels/MetricCards";
 import { NeuralSphere } from "@/components/panels/NeuralSphere";
+import { DashboardAgents } from "@/components/panels/Agents";
 import { AnalogTimeline } from "@/components/panels/AnalogTimeline";
 import { ForecastFan } from "@/components/panels/ForecastFan";
 import { ExecutionTape } from "@/components/panels/ExecutionTape";
@@ -71,8 +72,12 @@ function Dashboard() {
         </div>
       </Panel>
 
+      {/* roaming agents overlay: patrol ALL panels → scan → transmit to the core */}
+      <DashboardAgents />
+
       <Style>{`
         .dash-grid {
+          position: relative;
           display: grid;
           grid-template-columns: repeat(12, 1fr);
           grid-template-rows: calc(var(--u) * 216) 1fr calc(var(--u) * 224);

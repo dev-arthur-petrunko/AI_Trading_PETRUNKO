@@ -295,3 +295,16 @@ body { background: var(--bg); }
   .stage { width: 100vw; aspect-ratio: auto; min-height: 100vh; }
   .panel-body { padding: calc(var(--u) * 14); }
 }
+
+
+/* ПРИЁМ badge on the neural sphere (agent → core uplink) */
+.recv-badge {
+  position: absolute; top: calc(var(--u) * 46); right: calc(var(--u) * 14);
+  font-size: calc(var(--fs-xs) * 0.8); letter-spacing: 0.12em;
+  color: var(--cyan); border: 1px solid rgba(45, 212, 255, 0.5);
+  background: rgba(5, 10, 18, 0.75);
+  padding: calc(var(--u) * 3) calc(var(--u) * 7);
+  transition: all 0.3s ease; pointer-events: none; z-index: 8;
+}
+.recv-badge.on.bull { color: var(--bull); border-color: var(--bull); box-shadow: 0 0 calc(var(--u) * 10) rgba(25, 245, 138, 0.5); }
+.recv-badge.on.bear { color: var(--bear); border-color: var(--bear); box-shadow: 0 0 calc(var(--u) * 10) rgba(255, 59, 92, 0.5); }
