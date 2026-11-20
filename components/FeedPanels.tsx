@@ -26,7 +26,7 @@ export function IntroOverlay() {
 }
 
 /** LIVE FEED: newest events on top with typewriter effect, old ones fade. */
-export function LiveFeed({ max = 12 }: { max?: number }) {
+export function LiveFeed({ max = 8 }: { max?: number }) {
   const { events } = useStore();
   const shown = events.slice(0, max);
 
@@ -65,7 +65,7 @@ function FeedRow({ ev, index }: { ev: FeedEvent; index: number }) {
 
   return (
     <div
-      className={`feed-row ${index > 7 ? "faded" : ""}`}
+      className={`feed-row ${index > 5 ? "faded" : ""}`}
       style={{ animationDelay: "0ms" }}
     >
       <span className="ts mono dim">{hms(ev.t)}</span>
@@ -74,14 +74,14 @@ function FeedRow({ ev, index }: { ev: FeedEvent; index: number }) {
         {text}
       </span>
       <Style>{`
-        .feed { font-family: "JetBrains Mono", monospace; font-size: var(--fs-xs); }
-        .feed-row { display: flex; align-items: baseline; gap: calc(var(--u) * 7); line-height: 1.5; }
+        .feed { font-family: "JetBrains Mono", monospace; font-size: calc(var(--fs-xs) * 0.9); }
+        .feed-row { display: flex; align-items: baseline; gap: calc(var(--u) * 5); line-height: 1.42; }
         .feed-row .ts { opacity: 0.75; flex: 0 0 auto; }
         .feed-row .mk {
-          flex: 0 0 auto; font-size: calc(var(--fs-xs) * 0.85); border: 1px solid; padding: 0 calc(var(--u) * 4);
-          letter-spacing: 0.06em;
+          flex: 0 0 auto; font-size: calc(var(--fs-xs) * 0.78); border: 1px solid; padding: 0 calc(var(--u) * 3);
+          letter-spacing: 0.04em;
         }
-        .feed-row .body { flex: 1; min-width: 0; }
+        .feed-row .body { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .empty { letter-spacing: 0.12em; }
       `}</Style>
     </div>

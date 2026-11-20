@@ -59,12 +59,11 @@ function Dashboard() {
       <Panel title="Live Feed" icon="≡" delay={580} className="g-feed">
         <LiveFeed />
       </Panel>
-
-      <Panel title="Analog Timeline" icon="▤" delay={660} className="g-timeline">
-        <AnalogTimeline />
-      </Panel>
-      <Panel title="Forecast Fan" icon="✳" delay={740} className="g-fan">
+      <Panel title="Forecast Fan" icon="✳" delay={660} className="g-fan">
         <ForecastFan />
+      </Panel>
+      <Panel title="Analog Timeline" icon="▤" delay={740} className="g-timeline">
+        <AnalogTimeline />
       </Panel>
       <Panel title="Execution Tape" icon="↧" delay={820} className="g-tape" flush>
         <div style={{ padding: "calc(var(--u) * 8)", height: "100%" }}>
@@ -80,24 +79,27 @@ function Dashboard() {
           position: relative;
           display: grid;
           grid-template-columns: repeat(12, 1fr);
-          grid-template-rows: calc(var(--u) * 216) 1fr calc(var(--u) * 224);
+          grid-template-rows: calc(var(--u) * 205) 1fr calc(var(--u) * 235);
           gap: calc(var(--u) * 8);
           flex: 1; min-height: 0;
         }
-        .g-price   { grid-column: span 2; }
-        .g-candles { grid-column: span 4; }
-        .g-book    { grid-column: span 3; }
-        .g-fng     { grid-column: span 3; }
-        .g-metrics { grid-column: span 2; }
-        .g-sphere  { grid-column: span 7; }
-        .g-feed    { grid-column: span 3; }
-        .g-timeline{ grid-column: span 4; }
-        .g-fan     { grid-column: span 4; }
-        .g-tape    { grid-column: span 4; }
+        .g-price   { grid-column: 1 / span 2;  grid-row: 1; }
+        .g-candles { grid-column: 3 / span 5;  grid-row: 1; }
+        .g-book    { grid-column: 8 / span 3;  grid-row: 1; }
+        .g-fng     { grid-column: 11 / span 2; grid-row: 1; }
+        .g-metrics { grid-column: 1 / span 2;  grid-row: 2 / 4; }
+        .g-sphere  { grid-column: 3 / span 6;  grid-row: 2 / 4; }
+        .g-feed    { grid-column: 9 / span 2;  grid-row: 2; }
+        .g-fan     { grid-column: 11 / span 2; grid-row: 2; }
+        .g-timeline{ grid-column: 9 / span 2;  grid-row: 3; }
+        .g-tape    { grid-column: 11 / span 2; grid-row: 3; }
         @media (max-width: 1024px) {
           .dash-grid { display: flex; flex-direction: column; }
           .dash-grid .panel { min-height: calc(var(--u) * 240); }
-          .dash-grid .g-sphere { min-height: calc(var(--u) * 420); order: -1; }
+          .dash-grid .g-sphere { min-height: calc(var(--u) * 460); order: -1; }
+          .dash-grid .g-feed,
+          .dash-grid .g-tape,
+          .dash-grid .g-fng { min-height: calc(var(--u) * 200); }
         }
       `}</Style>
     </div>

@@ -95,9 +95,13 @@ export function FngGauge() {
       <MoodSquad />
 
       <Style>{`
-        .fng { display: flex; flex-direction: column; height: 100%; min-height: 0; }
-        .gauge { flex: 1; min-height: 0; width: 100%; }
-        .legend { display: flex; justify-content: space-between; font-size: calc(var(--fs-xs) * 0.85); letter-spacing: 0.1em; }
+        .fng { display: flex; flex-direction: column; height: 100%; min-height: 0; gap: calc(var(--u) * 3); }
+        .gauge { flex: 0 1 auto; min-height: 0; width: 100%; max-height: calc(var(--u) * 148); }
+        .legend { display: flex; justify-content: space-between; font-size: calc(var(--fs-xs) * 0.76); letter-spacing: 0.06em; margin-top: calc(var(--u) * -2); }
+        /* компактная толпа в узкой панели */
+        .fng .mood-squad { --ag-mini: calc(var(--u) * 17); margin-top: calc(var(--u) * 3); }
+        .fng .ms-head { margin-bottom: calc(var(--u) * 3); font-size: calc(var(--fs-xs) * 0.74); gap: calc(var(--u) * 5); }
+        .fng .ms-row { padding-top: calc(var(--u) * 9); gap: calc(var(--u) * 3); }
       `}</Style>
     </div>
   );

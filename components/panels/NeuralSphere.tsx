@@ -78,7 +78,7 @@ export function NeuralSphere() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
-    camera.position.set(0, 0, 3.4);
+    camera.position.set(0, 0, 2.75);
 
     const parallax = new THREE.Group(); // mouse tilt
     const spin = new THREE.Group(); // 0.05 rev/s autorotation

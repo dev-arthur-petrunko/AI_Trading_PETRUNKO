@@ -55,11 +55,11 @@ export function MarketsView() {
       </Panel>
 
       <Style>{`
-        .mk { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: calc(var(--u) * 300) calc(var(--u) * 250) 1fr; gap: calc(var(--u) * 8); flex: 1; min-height: 0; }
-        .mk-chart { grid-column: span 5; }
-        .mk-tv { grid-column: span 4; }
+        .mk { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: calc(var(--u) * 430) 1fr; gap: calc(var(--u) * 8); flex: 1; min-height: 0; }
+        .mk-chart { grid-column: span 4; }
+        .mk-tv { grid-column: span 8; }
         .mk-ob { grid-column: span 3; }
-        .mk-table { grid-column: span 12; }
+        .mk-table { grid-column: span 9; }
         .mkt { height: 100%; overflow: auto; font-family: "JetBrains Mono", monospace; font-size: var(--fs-xs); }
         .mkt .h, .mkt .r { display: grid; grid-template-columns: 40px 1fr 1.3fr 1fr 1.2fr 1.2fr 1.2fr 1fr; gap: calc(var(--u) * 8); padding: calc(var(--u) * 5) calc(var(--u) * 10); align-items: center; }
         .mkt .h { color: var(--dim); letter-spacing: 0.1em; position: sticky; top: 0; background: rgba(5,10,18,0.95); border-bottom: 1px solid var(--stroke); }

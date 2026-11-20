@@ -269,7 +269,7 @@ export function DashboardAgents() {
     }, ms);
     timers.current.add(t);
   };
-  useEffect(() => () => { for (const t of timers.current) clearTimeout(t); }, []);
+  useEffect(() => () => { timers.current.forEach((t) => clearTimeout(t)); }, []);
 
   // ---- measure panel rects relative to the overlay ----------------------
   useEffect(() => {

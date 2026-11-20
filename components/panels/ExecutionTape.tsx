@@ -6,7 +6,7 @@ import { useStore } from "@/lib/store";
 import { COLORS, fmtPct, hms } from "@/lib/format";
 
 /** EXECUTION TAPE: last trades streaming in, buys green / sells red, flashes on entry. */
-export function ExecutionTape({ max = 14 }: { max?: number }) {
+export function ExecutionTape({ max = 8 }: { max?: number }) {
   const { events, symbol } = useStore();
 
   const rows = useMemo(
@@ -29,7 +29,7 @@ export function ExecutionTape({ max = 14 }: { max?: number }) {
           const buy = e.side === "buy";
           const color = buy ? COLORS.bull : COLORS.bear;
           return (
-            <div className={`trow feed-row ${i > 9 ? "faded" : ""}`} key={e.id} style={{ color }}>
+            <div className={`trow feed-row ${i > 5 ? "faded" : ""}`} key={e.id} style={{ color }}>
               <span className="dim">{hms(e.t)}</span>
               <span className="mono">{e.price!.toLocaleString("en-US", { maximumFractionDigits: 5 })}</span>
               <span className="mono">{(e.qty ?? 0).toFixed(e.qty && e.qty >= 100 ? 0 : 4)}</span>
@@ -41,11 +41,11 @@ export function ExecutionTape({ max = 14 }: { max?: number }) {
       </div>
       <Style>{`
         .tape { display: flex; flex-direction: column; height: 100%; min-height: 0; font-family: "JetBrains Mono", monospace; }
-        .thead, .trow { display: grid; grid-template-columns: 1.1fr 1.3fr 1fr 1fr 1fr; gap: calc(var(--u) * 6); padding: calc(var(--u) * 2) calc(var(--u) * 4); font-size: calc(var(--fs-xs) * 0.9); }
-        .thead { color: var(--dim); letter-spacing: 0.1em; border-bottom: 1px solid rgba(27,58,92,0.7); flex: 0 0 auto; }
+        .thead, .trow { display: grid; grid-template-columns: 1.1fr 1.3fr 1fr 1fr 1fr; gap: calc(var(--u) * 4); padding: calc(var(--u) * 1) calc(var(--u) * 3); font-size: calc(var(--fs-xs) * 0.82); }
+        .thead { color: var(--dim); letter-spacing: 0.08em; border-bottom: 1px solid rgba(27,58,92,0.7); flex: 0 0 auto; }
         .thead span:last-child, .trow .side { text-align: right; }
         .tbody { flex: 1; overflow: hidden; min-height: 0; }
-        .trow { font-size: calc(var(--fs-xs) * 0.95); font-variant-numeric: tabular-nums; }
+        .trow { font-size: calc(var(--fs-xs) * 0.88); font-variant-numeric: tabular-nums; }
         .empty { color: var(--dim); font-size: var(--fs-xs); padding: calc(var(--u) * 6); }
         .faded { opacity: 0.4; }
         @media (max-width: 1024px) { .thead, .trow { grid-template-columns: 1fr 1.2fr 1fr 1fr; } .thead span:nth-child(4), .trow span:nth-child(4) { display: none; } }
