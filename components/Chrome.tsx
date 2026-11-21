@@ -3,22 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import { Style } from "./Style";
 import { useStore, SYMBOLS } from "@/lib/store";
+import { LANGS, type TKey } from "@/lib/i18n";
 import { utcClock, fmtPrice, fmtCompact, fmtPct, COLORS } from "@/lib/format";
 import type { Sub } from "@/lib/store";
 
-const NAV: { id: Sub; label: string }[] = [
-  { id: "dash", label: "Дашборд" },
-  { id: "markets", label: "Рынки" },
-  { id: "forecast", label: "Прогнозы" },
-  { id: "history", label: "История" },
-  { id: "analogs", label: "Аналоги" },
-  { id: "backtest", label: "Бэктест" },
-  { id: "ai", label: "AI" },
-  { id: "about", label: "О проекте" },
+const NAV: { id: Sub; key: TKey }[] = [
+  { id: "dash", key: "nav.dash" },
+  { id: "markets", key: "nav.markets" },
+  { id: "forecast", key: "nav.forecast" },
+  { id: "history", key: "nav.history" },
+  { id: "analogs", key: "nav.analogs" },
+  { id: "backtest", key: "nav.backtest" },
+  { id: "ai", key: "nav.ai" },
+  { id: "about", key: "nav.about" },
 ];
 
 export function TopBar() {
-  const { sub, setSub, source, setSource, health, connected, latencyMs, rank } = useStore();
+  const { sub, setSub, source, setSource, health, connected, latencyMs, rank, t, lang, setLang } = useStore();
   const [clock, setClock] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,16 +46,28 @@ export function TopBar() {
             className={`nav-item ${sub === n.id ? "on" : ""}`}
             onClick={() => setSub(n.id)}
           >
-            {n.label}
+            {t(n.key)}
           </button>
         ))}
       </nav>
 
       <div className="right">
+        <div className="lang" role="group" aria-label="Language / Язык / Мова">
+          {LANGS.map((l) => (
+            <button
+              key={l.id}
+              className={`lang-btn ${lang === l.id ? "on" : ""}`}
+              onClick={() => setLang(l.id)}
+              aria-pressed={lang === l.id}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
         <span className="clock mono">{clock ?? "--:--:-- UTC"}</span>
         <span className="live-dot" title={connected ? "WebSocket подключён" : "переподключение…"}>
           <i style={{ background: connected ? undefined : COLORS.dim }} />
-          {connected ? "LIVE" : "SYNC"}
+          {connected ? t("live") : t("sync")}
         </span>
         <span className="lat mono" title="задержка клиент ↔ сервер">
           {latencyMs}ms
@@ -71,7 +84,7 @@ export function TopBar() {
                   : `${s.toUpperCase()}: ${health.alive[s] ? "● доступен" : "● недоступен"} · ${health.latency[s] ?? 0} мс`
               }
             >
-              {s === "auto" ? "АВТО" : s.toUpperCase()}
+              {s === "auto" ? t("src.auto") : s.toUpperCase()}
               <em
                 className="src-dot"
                 style={{
@@ -135,7 +148,7 @@ export function TopBar() {
 }
 
 export function TitleBlock() {
-  const { swapKey } = useStore();
+  const { swapKey, t } = useStore();
   const [glitch, setGlitch] = useState(false);
 
   useEffect(() => {
@@ -161,7 +174,7 @@ export function TitleBlock() {
       <h1 className={`glitch title-breath ${glitch ? "on" : ""}`} data-text="AI TRADING PETRUNKO">
         AI TRADING PETRUNKO
       </h1>
-      <p className="sub mono">Real-time market intelligence · BTC · ETH · SOL · BNB · XRP · DOGE · ADA · AVAX</p>
+      <p className="sub mono">{t("brand.sub")}</p>
       <Style>{`
         .title-block { text-align: center; padding: calc(var(--u) * 6) 0 calc(var(--u) * 4); position: relative; z-index: 5; }
         h1 {
@@ -295,10 +308,10 @@ export function EfoToggle() {
 }
 
 export function Disclaimer({ compact = false }: { compact?: boolean }) {
+  const { t } = useStore();
   return (
     <p className={`disclaimer ${compact ? "compact" : ""}`}>
-      Образовательный проект. Не является инвестиционной рекомендацией. Торговля криптовалютой связана с
-      высоким риском потери средств.
+      {t("disclaimer")}
       <Style>{`
         .disclaimer { color: var(--dim); font-size: var(--fs-xs); letter-spacing: 0.06em; text-align: center; margin: calc(var(--u) * 6) 0 0; }
         .disclaimer.compact { margin: 0; }

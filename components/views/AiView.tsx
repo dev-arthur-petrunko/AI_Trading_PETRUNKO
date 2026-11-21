@@ -151,7 +151,7 @@ const aiEngCss = `
  * ОКНО «AI» — состояние базы накопления + история для анализа.
  * ============================================================ */
 export function AiView() {
-  const { symbol, swapKey } = useStore();
+  const { symbol, swapKey, t } = useStore();
   const st = useAiState();
   const [hourly, setHourly] = useState<Snapshot[]>([]);
   const [daily, setDaily] = useState<DailyRow[]>([]);
@@ -190,7 +190,7 @@ export function AiView() {
 
   return (
     <div className="ai">
-      <Panel title="Накопление данных · каждый час" icon="◷" delay={80} className="ai-kpi">
+      <Panel title={t("ai.h1")} icon="◷" delay={80} className="ai-kpi">
         <div className="kpis">
           {counts.map((c) => (
             <div className="k" key={c.k}>
@@ -207,7 +207,7 @@ export function AiView() {
         </p>
       </Panel>
 
-      <Panel title="AI engine" icon="⌬" delay={160} className="ai-engine">
+      <Panel title={t("ai.h2")} icon="⌬" delay={160} className="ai-engine">
         <AiEnginePanel />
       </Panel>
 
@@ -215,7 +215,7 @@ export function AiView() {
         <HourlyChart rows={hourly} />
       </Panel>
 
-      <Panel title="Суточные сводки" icon="▤" delay={320} className="ai-daily" flush>
+      <Panel title={t("ai.dailyTitle")} icon="▤" delay={320} className="ai-daily" flush>
         <div className="tbl scroll-thin mono">
           <div className="h"><span>СУТКИ</span><span>N</span><span>P↑</span><span>CONF</span><span>ЦЕНА</span><span>HIT</span></div>
           {daily.map((d) => (
@@ -232,7 +232,7 @@ export function AiView() {
         </div>
       </Panel>
 
-      <Panel title="Месячные сводки" icon="▦" delay={400} className="ai-monthly" flush>
+      <Panel title={t("ai.monthlyTitle")} icon="▦" delay={400} className="ai-monthly" flush>
         <div className="tbl scroll-thin mono">
           <div className="h"><span>МЕСЯЦ</span><span>ДНЕЙ</span><span>P↑</span><span>ЦЕНА</span><span>HIT</span></div>
           {monthly.map((m) => (

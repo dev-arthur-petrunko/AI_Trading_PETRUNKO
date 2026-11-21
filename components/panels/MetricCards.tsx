@@ -24,10 +24,32 @@ type Ctx = {
   history: number[];
 };
 
-/** Left column: metric cards with live sparklines. */
+/** Left column: metric cards with live sparklines. They also RECEIVE the core's
+ *  publications (`aps-out`): every card flashes and a «◄ ИЗ ЯДРА» chip shows what
+ *  the neural sphere just pushed (data flow: sphere → AI Metrics). */
 export function MetricCards() {
-  const { forecast, candles, symbol, fng } = useStore();
+  const { forecast, candles, symbol, fng, t } = useStore();
   const series = useMemo(() => candles.map((c) => c.c), [candles]);
+
+  // incoming publication from the neural sphere
+  const [core, setCore] = useState<{ at: number; label: string } | null>(null);
+  const coreTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    const onOut = (e: Event) => {
+      const d = (e as CustomEvent).detail as { label?: string };
+      if (!d?.label) return;
+      const at = Date.now();
+      setCore({ at, label: d.label });
+      if (coreTimer.current) clearTimeout(coreTimer.current);
+      coreTimer.current = setTimeout(() => setCore((c) => (c && c.at === at ? null : c)), 3400);
+    };
+    window.addEventListener("aps-out", onOut);
+    return () => {
+      window.removeEventListener("aps-out", onOut);
+      if (coreTimer.current) clearTimeout(coreTimer.current);
+    };
+  }, []);
+  const lit = !!core;
 
   // derive lightweight series indicators locally (fast, reactive to every tick)
   const rsiSeries = useMemo(() => rsiCalc(series, 14), [series]);
@@ -47,7 +69,7 @@ export function MetricCards() {
   const metrics: MetricDef[] = [
     {
       key: "prob",
-      label: "ВЕРОЯТНОСТЬ РОСТА",
+      label: t("m.prob"),
       value: (c) => `${(c.probUp * 100).toFixed(1)}%`,
       bar: (c) => c.probUp,
       tone: (c) => (c.probUp >= 0.5 ? COLORS.bull : COLORS.bear),
@@ -55,7 +77,7 @@ export function MetricCards() {
     },
     {
       key: "conf",
-      label: "УВЕРЕННОСТЬ МОДЕЛИ",
+      label: t("m.conf"),
       value: (c) => `${(c.confidence * 100).toFixed(0)}%`,
       bar: (c) => c.confidence,
       tone: (c) => (c.confidence >= 0.15 ? COLORS.cyan : COLORS.amber),
@@ -79,7 +101,7 @@ export function MetricCards() {
     },
     {
       key: "vol",
-      label: "ВОЛАТИЛЬНОСТЬ (30д)",
+      label: t("m.vol"),
       value: (c) => `${c.volatility.toFixed(1)}%`,
       bar: (c) => Math.min(1, c.volatility / 150),
       tone: () => COLORS.amber,
@@ -96,7 +118,10 @@ export function MetricCards() {
   ];
 
   return (
-    <div className="metrics">
+    <div className={`metrics ${lit ? "lit" : ""}`}>
+      {core && (
+        <span className="from-core mono" key={core.at}>◄ ИЗ ЯДРА: {core.label}</span>
+      )}
       {metrics.map((m) => {
         const t = m.tone(ctx);
         return (
@@ -118,7 +143,26 @@ export function MetricCards() {
         );
       })}
       <Style>{`
-        .metrics { display: flex; flex-direction: column; gap: calc(var(--u) * 7); height: 100%; overflow: hidden; }
+        .metrics { position: relative; display: flex; flex-direction: column; gap: calc(var(--u) * 7); height: 100%; overflow: hidden; }
+        .metrics .from-core {
+          position: absolute; top: calc(var(--u) * -2); right: 0; z-index: 3;
+          font-size: calc(var(--fs-xs) * 0.8); letter-spacing: 0.08em;
+          color: var(--cyan); background: rgba(5,10,18,0.92);
+          border: 1px solid var(--cyan); padding: calc(var(--u) * 2) calc(var(--u) * 6);
+          text-shadow: 0 0 calc(var(--u) * 6) rgba(45,212,255,0.7);
+          animation: coreChip 3.4s ease both; pointer-events: none; white-space: nowrap;
+        }
+        @keyframes coreChip { 0% { opacity: 0; transform: translateX(14px); } 12% { opacity: 1; transform: none; } 84% { opacity: 1; } 100% { opacity: 0; } }
+        .metrics.lit .mcard { animation: cardLit 1s ease both; }
+        .metrics.lit .mcard:nth-child(3) { animation-delay: 0.05s; }
+        .metrics.lit .mcard:nth-child(4) { animation-delay: 0.1s; }
+        .metrics.lit .mcard:nth-child(5) { animation-delay: 0.15s; }
+        .metrics.lit .mcard:nth-child(6) { animation-delay: 0.2s; }
+        .metrics.lit .mcard:nth-child(7) { animation-delay: 0.25s; }
+        @keyframes cardLit {
+          0% { border-left-color: var(--cyan); background: rgba(45,212,255,0.22); box-shadow: inset 0 0 calc(var(--u) * 12) rgba(45,212,255,0.25); }
+          100% { background: rgba(5,10,18,0.35); box-shadow: none; }
+        }
         .mcard { border-left: calc(var(--u) * 3) solid var(--stroke); padding: calc(var(--u) * 4) calc(var(--u) * 8); background: rgba(5,10,18,0.35); }
         .mrow { display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--u) * 6); }
         .mlabel { font-family: "JetBrains Mono", monospace; font-size: calc(var(--fs-xs) * 0.82); color: var(--dim); letter-spacing: 0.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

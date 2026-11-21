@@ -17,7 +17,7 @@ import type { Candle } from "@/lib/types";
 
 /** ИСТОРИЯ: deep history chart (1h / 1d / full span incl. CoinGecko fallback). */
 export function HistoryView() {
-  const { symbol, swapKey } = useStore();
+  const { symbol, swapKey, t } = useStore();
   const holder = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const lineRef = useRef<ISeriesApi<"Area"> | null>(null);
@@ -103,7 +103,7 @@ export function HistoryView() {
         <div ref={holder} style={{ height: "100%" }} />
       </Panel>
 
-      <Panel title="Статистика истории" icon="∑" delay={160} className="hs-stat">
+      <Panel title={t("hs.stats")} icon="∑" delay={160} className="hs-stat">
         <div className="st mono">
           <Row k="Свечей" v={meta.count.toLocaleString("en-US")} />
           <Row k="Начало" v={meta.from ? fmtDate(meta.from) : "—"} />

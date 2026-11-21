@@ -11,7 +11,7 @@ import { SYMBOLS } from "@/lib/store";
 
 /** РЫНКИ: our candle chart + official TradingView widget + full market table. */
 export function MarketsView() {
-  const { symbol, setSymbol, stats, rank } = useStore();
+  const { symbol, setSymbol, stats, rank, t } = useStore();
   const pills = rank.length ? rank.map((r) => r.id) : SYMBOLS;
 
   return (
@@ -22,7 +22,7 @@ export function MarketsView() {
         </div>
       </Panel>
 
-      <Panel title="TradingView · Advanced Chart (официальный виджет)" icon="◫" delay={160} className="mk-tv">
+      <Panel title={t("mk.tv")} icon="◫" delay={160} className="mk-tv">
         <TradingViewWidget symbol={`BINANCE:${symbol}USDT`} />
       </Panel>
 
@@ -30,7 +30,7 @@ export function MarketsView() {
         <OrderBook />
       </Panel>
 
-      <Panel title="Рыночная таблица · топ по капитализации" icon="▦" delay={320} className="mk-table" flush>
+      <Panel title={t("mk.table")} icon="▦" delay={320} className="mk-table" flush>
         <div className="mkt scroll-thin">
           <div className="h mono">
             <span>#</span><span>МОНЕТА</span><span>ЦЕНА</span><span>24Ч</span><span>HIGH</span><span>LOW</span><span>ОБЪЁМ</span><span>ИСТОЧНИК</span>

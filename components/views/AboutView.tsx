@@ -7,11 +7,11 @@ import { Disclaimer, EfoToggle } from "@/components/Chrome";
 
 /** О ПРОЕКТЕ: mission, method, sources, honesty rules, disclaimer. */
 export function AboutView() {
-  const { health, latencyMs, connected } = useStore();
+  const { health, latencyMs, connected, t } = useStore();
 
   return (
     <div className="ab">
-      <Panel title="AI Trading Petrunko · о проекте" icon="◇" delay={80} className="ab-main">
+      <Panel title={t("ab.title")} icon="◇" delay={80} className="ab-main">
         <div className="cols scroll-thin">
           <section>
             <h3>Что это</h3>

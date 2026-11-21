@@ -255,6 +255,7 @@ export function DashboardAgents() {
   const dialogRef = useRef(dialog);
   dialogRef.current = dialog;
   const [packets, setPackets] = useState<Packet[]>([]);
+  const packetSeq = useRef(0);
   const [thought, setThought] = useState<{ idx: number; text: string; tok: number } | null>(null);
   const radarView = useRef<(string | null)[]>(Array(MAX_AGENTS).fill(null));
 
@@ -345,7 +346,7 @@ export function DashboardAgents() {
     const side: Side = i < c.bull ? "bull" : "bear";
     const rd = readingsOf(ctxRef.current);
     const label = (rd[panel] || "").slice(0, 26);
-    const id = Date.now() + Math.random();
+    const id = ++packetSeq.current; // монотонный id → ключи всегда уникальны
     setPackets((ps) => [
       ...ps.slice(-6),
       { id, x: from.x, y: from.y, tx: r.x + r.w * (0.3 + Math.random() * 0.4), ty: r.y + r.h * (0.3 + Math.random() * 0.4), color: side === "bull" ? COLORS.bull : COLORS.bear, label, panel },
@@ -355,6 +356,39 @@ export function DashboardAgents() {
     });
     after(1150, () => setPackets((ps) => ps.filter((p) => p.id !== id)));
   };
+
+  // ---- core → AI Metrics: fly a packet from the sphere rect into the metrics rect ----
+  const emitCore = (label: string) => {
+    const sph = rectsRef.current["g-sphere"];
+    const met = rectsRef.current["g-metrics"];
+    if (!sph || !met) return;
+    const id = ++packetSeq.current;
+    setPackets((ps) => [
+      ...ps.slice(-6),
+      {
+        id,
+        x: sph.x + sph.w * (0.35 + Math.random() * 0.3),
+        y: sph.y + sph.h * (0.35 + Math.random() * 0.3),
+        tx: met.x + met.w * 0.5,
+        ty: met.y + met.h * 0.4,
+        color: COLORS.cyan,
+        label,
+        panel: "g-metrics",
+      },
+    ]);
+    after(1500, () => setPackets((ps) => ps.filter((p) => p.id !== id)));
+  };
+
+  // sphere publishes → the reading physically flies to the AI Metrics window
+  useEffect(() => {
+    const onOut = (e: Event) => {
+      const d = (e as CustomEvent).detail as { label?: string };
+      if (ready && d?.label) emitCore(d.label);
+    };
+    window.addEventListener("aps-out", onOut);
+    return () => window.removeEventListener("aps-out", onOut);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
 
   // ---- life loop: roam → scan → transmit, talks, cables, thoughts -------
   useEffect(() => {

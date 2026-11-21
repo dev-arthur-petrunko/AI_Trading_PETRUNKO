@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { API, WS_URL, apiGet } from "./api";
+import { makeT, type Lang } from "./i18n";
 import type {
   Stats,
   StatsRow,
@@ -49,6 +50,11 @@ export type Store = {
   reduced: boolean;
   intro: boolean;
   setIntro: (v: boolean) => void;
+
+  // i18n: ru (default) / en / uk — t() отдаёт переведённую строку по ключу
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  t: ReturnType<typeof makeT>;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -87,6 +93,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [eco, setEco] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [intro, setIntro] = useState(true);
+
+  // язык: по умолчанию русский; выбранное значение запоминаем в localStorage
+  const [lang, setLangRaw] = useState<Lang>("ru");
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("pt.lang");
+      if (saved === "en" || saved === "uk" || saved === "ru") setLangRaw(saved);
+    } catch {}
+  }, []);
+  const setLang = useCallback((l: Lang) => {
+    setLangRaw(l);
+    try {
+      window.localStorage.setItem("pt.lang", l);
+    } catch {}
+  }, []);
+  const t = useMemo(() => makeT(lang), [lang]);
 
   const wsRef = useRef<WebSocket | null>(null);
   const rttRef = useRef<number[]>([]);
@@ -387,10 +409,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       reduced,
       intro,
       setIntro,
+      lang,
+      setLang,
+      t,
     }),
     [
       symbol, setSymbol, tf, setTf, sub, setSub, health, setSource, connected, rtt, stats, candles,
-      m1, depth, events, forecast, backtest, fng, rank, swapKey, eco, reduced, intro,
+      m1, depth, events, forecast, backtest, fng, rank, swapKey, eco, reduced, intro, lang, setLang, t,
     ],
   );
 

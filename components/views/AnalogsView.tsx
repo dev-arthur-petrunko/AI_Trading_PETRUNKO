@@ -22,7 +22,7 @@ type Resp = {
 
 /** АНАЛОГИ: full timeline + table of the top matches with their outcomes. */
 export function AnalogsView() {
-  const { symbol, swapKey, forecast } = useStore();
+  const { symbol, swapKey, forecast, t } = useStore();
   const [data, setData] = useState<Resp | null>(null);
   const [sel, setSel] = useState<Analog | null>(null);
 
@@ -44,7 +44,7 @@ export function AnalogsView() {
 
   return (
     <div className="an">
-      <Panel title="Таймлайн аналогов по месяцам (клик — наложение)" icon="▤" delay={80} className="an-tl">
+      <Panel title={t("an.timeline")} icon="▤" delay={80} className="an-tl">
         <AnalogTimeline />
       </Panel>
 
@@ -69,7 +69,7 @@ export function AnalogsView() {
         </div>
       </Panel>
 
-      <Panel title="Как это работает" icon="?" delay={240} className="an-how">
+      <Panel title={t("an.how")} icon="?" delay={240} className="an-how">
         <p className="how mono">
           1. Окно {data?.windowLen ?? "—"} свечей ({data?.tf === "1d" ? "дневные" : "часовые"}) превращается в «форму кривой»:
           нормируем лог-возвраты, чтобы сравнивать 2018 год с 2025-м.

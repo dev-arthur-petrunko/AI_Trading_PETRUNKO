@@ -45,6 +45,9 @@ CREATE TABLE IF NOT EXISTS ai_rollup_monthly(
 
 // ---------------------------------------------------------------- hourly snapshot
 
+/** null для всего, что не является конечным числом: SQLite принимает только null. */
+const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
+
 /** Снять часовой снапшот по ОДНОЙ монете (upsert по границе часа, UTC). */
 export function snapshotOne(sym) {
   const f = analysis.forecasts[sym];
@@ -73,14 +76,15 @@ export function snapshotOne(sym) {
       hitRate=excluded.hitRate, baseline=excluded.baseline
   `).run(
     sym, ts,
-    st.price ?? null, f.probUp, f.probDown, f.probFlat, f.confidence,
-    closes.length > 15 ? rsi(closes) : null,
-    closes.length > 16 ? realizedVol(closes, 168, 24) : null,
-    aux.fng === undefined || aux.fng === null ? null : aux.fng,
-    depth ? depth.imbalance : null,
-    micro.funding ?? null, micro.oiChange ?? null,
-    f.horizonDays, f.count, best ? best.label : null, best ? best.sim : null,
-    bt && bt.computed ? bt.hitRate : null, bt && bt.computed ? bt.baselineUp : null,
+    num(st.price), num(f.probUp), num(f.probDown), num(f.probFlat), num(f.confidence),
+    num(closes.length > 15 ? rsi(closes) : null),
+    num(closes.length > 16 ? realizedVol(closes, 168, 24) : null),
+    num(aux.fng),
+    num(depth ? depth.imbalance : null),
+    num(micro.funding), num(micro.oiChange),
+    num(f.horizonDays), num(f.count),
+    best && best.label != null ? String(best.label) : null, num(best ? best.sim : null),
+    num(bt && bt.computed ? bt.hitRate : null), num(bt && bt.computed ? bt.baselineUp : null),
   );
   return true;
 }
@@ -109,7 +113,7 @@ export function rollupDaily(symbol) {
   const sql = `
     INSERT INTO ai_rollup_daily(symbol, day, n, probUpAvg, probDownAvg, confAvg,
       priceClose, rsiAvg, fngAvg, imbalanceAvg, fundingAvg, hitRate, baseline)
-    SELECT symbol, ${dayOf("ts")}, COUNT(*),
+    SELECT symbol, ${dayOf("ts")} AS day, COUNT(*),
       AVG(probUp), AVG(probDown), AVG(confidence),
       NULL, AVG(rsi), AVG(fng), AVG(imbalance), AVG(funding), AVG(hitRate), AVG(baseline)
     FROM ai_snapshots WHERE symbol = ? GROUP BY day
@@ -136,7 +140,7 @@ export function rollupMonthly(symbol) {
   const sql = `
     INSERT INTO ai_rollup_monthly(symbol, month, n, days, probUpAvg, probDownAvg, confAvg,
       priceClose, hitRate, baseline)
-    SELECT symbol, substr(day, 1, 7), SUM(n), COUNT(*),
+    SELECT symbol, substr(day, 1, 7) AS month, SUM(n), COUNT(*),
       AVG(probUpAvg), AVG(probDownAvg), AVG(confAvg),
       NULL, AVG(hitRate), AVG(baseline)
     FROM ai_rollup_daily WHERE symbol = ? GROUP BY month

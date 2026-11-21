@@ -10,7 +10,7 @@ import { COLORS, fmtPct, fmtNum } from "@/lib/format";
 /** ПРОГНОЗЫ (переработано, задача 4): ансамбль + AI + горизонты + распределение
  *  + риск-факторы + бэктест-метрики + веер. Больше информации в отведённом месте. */
 export function ForecastView() {
-  const { forecast, symbol, backtest, depth, stats, fng } = useStore();
+  const { forecast, symbol, backtest, depth, stats, fng, t } = useStore();
   const f = forecast;
 
   const comp = f?.components;
@@ -65,7 +65,7 @@ export function ForecastView() {
         </div>
       </Panel>
 
-      <Panel title="Почему такой прогноз · веса ансамбля" icon="⚖" delay={160} className="fc-why">
+      <Panel title={t("fc.why")} icon="⚖" delay={160} className="fc-why">
         <div className="weights">
           {rows.map((r) => (
             <div className="wrow" key={r.key}>
@@ -95,12 +95,12 @@ export function ForecastView() {
         </div>
       </Panel>
 
-      <Panel title="AI engine · вердикт модели" icon="✦" delay={240} className="fc-ai">
+      <Panel title={t("fc.ai")} icon="✦" delay={240} className="fc-ai">
         <AiEnginePanel />
       </Panel>
 
       {/* row 2 */}
-      <Panel title="Ожидаемые ходы по горизонтам" icon="⇶" delay={300} className="fc-hor">
+      <Panel title={t("fc.hor")} icon="⇶" delay={300} className="fc-hor">
         <div className="hz mono">
           {f ? (
             <table>
@@ -135,11 +135,11 @@ export function ForecastView() {
         </div>
       </Panel>
 
-      <Panel title="Распределение исходов · 50 аналогов" icon="▥" delay={360} className="fc-dist">
+      <Panel title={t("fc.dist")} icon="▥" delay={360} className="fc-dist">
         <DistChart />
       </Panel>
 
-      <Panel title="Риск-факторы · live" icon="⚠" delay={420} className="fc-risk">
+      <Panel title={t("fc.risk")} icon="⚠" delay={420} className="fc-risk">
         <RiskRows
           funding={micro.funding}
           oiChange={micro.oiChange}
@@ -150,7 +150,7 @@ export function ForecastView() {
       </Panel>
 
       {/* row 3 */}
-      <Panel title="Веер прогноза · куда разлетаются аналоги" icon="✳" delay={480} className="fc-fan">
+      <Panel title={t("fc.fanTitle")} icon="✳" delay={480} className="fc-fan">
         <ForecastFan />
       </Panel>
 
