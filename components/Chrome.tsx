@@ -13,6 +13,7 @@ const NAV: { id: Sub; label: string }[] = [
   { id: "history", label: "История" },
   { id: "analogs", label: "Аналоги" },
   { id: "backtest", label: "Бэктест" },
+  { id: "ai", label: "AI" },
   { id: "about", label: "О проекте" },
 ];
 

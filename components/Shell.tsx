@@ -21,6 +21,7 @@ import { HistoryView } from "@/components/views/HistoryView";
 import { AnalogsView } from "@/components/views/AnalogsView";
 import { BacktestView } from "@/components/views/BacktestView";
 import { AboutView } from "@/components/views/AboutView";
+import { AiView } from "@/components/views/AiView";
 
 function Backdrop() {
   return (
@@ -116,6 +117,7 @@ function Content() {
       {sub === "history" && <HistoryView />}
       {sub === "analogs" && <AnalogsView />}
       {sub === "backtest" && <BacktestView />}
+      {sub === "ai" && <AiView />}
       {sub === "about" && <AboutView />}
       <Style>{`
         .content { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: calc(var(--u) * 8) calc(var(--u) * 12) calc(var(--u) * 6); }

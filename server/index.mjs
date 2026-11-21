@@ -15,6 +15,7 @@ import {
 } from "./exchange.mjs";
 import { insertCandles, readCandles, selectSeries, countAll } from "./store.mjs";
 import { ensureHistory, topUp, deepHistoryLoop } from "./history.mjs";
+import { startAccumulator, setAux, aiState, aiSeries } from "./accum.mjs";
 import {
   analysis,
   startAnalysis,
@@ -100,6 +101,7 @@ let rank = null;
 async function refreshFng() {
   try {
     fng = await fetchFng(60);
+    setAux({ fng: fng.value });
     broadcast({ type: "fng", fng });
   } catch (e) {
     log(`fng error: ${e.message}`);
@@ -221,6 +223,14 @@ const httpServer = http.createServer(async (req, res) => {
   const p = u.pathname;
   try {
     if (p === "/api/status") return json(res, 200, statusPayload());
+    if (p === "/api/ai/state") return json(res, 200, aiState());
+    if (p === "/api/ai/series") {
+      const sym = (u.searchParams.get("symbol") || "BTC").toUpperCase();
+      const lvlRaw = u.searchParams.get("level") || "hourly";
+      const level = ["hourly", "daily", "monthly"].includes(lvlRaw) ? lvlRaw : "hourly";
+      const limit = Math.min(1000, Number(u.searchParams.get("limit") || 48));
+      return json(res, 200, { symbol: sym, level, rows: aiSeries(sym, level, limit) });
+    }
 
     if (p === "/api/source") {
       const s = u.searchParams.get("s");
@@ -490,6 +500,8 @@ async function main() {
   refreshRank();
   setInterval(refreshFng, 10 * 60_000);
   setInterval(refreshRank, 30 * 60_000);
+  setAux({ fng: fng?.value ?? null });
+  startAccumulator(log);
 
   log("загрузка истории…");
   try {

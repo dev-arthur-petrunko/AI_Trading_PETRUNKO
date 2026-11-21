@@ -15,7 +15,7 @@ import type {
 } from "./types";
 import type { Candle } from "./types";
 
-export type Sub = "dash" | "markets" | "forecast" | "history" | "analogs" | "backtest" | "about";
+export type Sub = "dash" | "markets" | "forecast" | "history" | "analogs" | "backtest" | "ai" | "about";
 
 export type Store = {
   symbol: string;
