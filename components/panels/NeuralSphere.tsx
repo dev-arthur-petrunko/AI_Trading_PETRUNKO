@@ -107,12 +107,15 @@ export function NeuralSphere() {
       pPos[i * 3] = x;
       pPos[i * 3 + 1] = y * rad;
       pPos[i * 3 + 2] = z;
-      // saturated latitude colours (no white core — it blows out under additive blending)
+      // Dark ball with glowing poles (as on the reference): the equator stays
+      // dim, only the top (cyan) and bottom (amber) bloom. Normal blending below
+      // so overlapping lines can never sum to solid white.
       const t = (y + 1) / 2; // 0 = bottom … 1 = top
-      const dim = 0.55 + Math.random() * 0.45;
-      pCol[i * 3] = (1.0 * (1 - t) + 0.2 * t) * dim;
-      pCol[i * 3 + 1] = (0.45 * (1 - t) + 0.85 * t) * dim;
-      pCol[i * 3 + 2] = (0.12 * (1 - t) + 1.0 * t) * dim;
+      const polar = Math.abs(t - 0.5) * 2; // 0 at equator → 1 at poles
+      const intensity = (0.5 + 0.6 * polar) * (0.68 + Math.random() * 0.32);
+      pCol[i * 3] = (1.0 + (0.17 - 1.0) * t) * intensity; // R: amber → cyan
+      pCol[i * 3 + 1] = (0.55 + (0.83 - 0.55) * t) * intensity;
+      pCol[i * 3 + 2] = (0.12 + (1.0 - 0.12) * t) * intensity;
     }
 
     // threads: spiral neighbours (tight wind) + a few long chords (tangle).
@@ -131,8 +134,8 @@ export function NeuralSphere() {
     const wireMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.34,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.7,
+      blending: THREE.NormalBlending,
       depthWrite: false,
     });
     const wire = new THREE.LineSegments(wireGeo, wireMat);
@@ -143,11 +146,11 @@ export function NeuralSphere() {
     ptsGeo.setAttribute("position", new THREE.BufferAttribute(pPos.slice(), 3));
     ptsGeo.setAttribute("color", new THREE.BufferAttribute(pCol, 3));
     const ptsMat = new THREE.PointsMaterial({
-      size: simple ? 0.024 : 0.018,
+      size: simple ? 0.022 : 0.016,
       map: tex,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: THREE.NormalBlending,
       vertexColors: true,
       opacity: 0,
       sizeAttenuation: true,
@@ -296,7 +299,7 @@ export function NeuralSphere() {
       lgeo.setAttribute("color", new THREE.Float32BufferAttribute(lineCol, 3));
       spokeObj = new THREE.LineSegments(
         lgeo,
-        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false }),
+        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5, blending: THREE.NormalBlending, depthWrite: false }),
       );
       spin.add(spokeObj);
 
@@ -330,7 +333,7 @@ export function NeuralSphere() {
         cg.setAttribute("color", new THREE.Float32BufferAttribute(chordCol, 3));
         chordObj = new THREE.LineSegments(
           cg,
-          new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false }),
+          new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.4, blending: THREE.NormalBlending, depthWrite: false }),
         );
         spin.add(chordObj);
       }
@@ -458,8 +461,8 @@ export function NeuralSphere() {
       // intro assembly: wire ball "winds up" from a point
       const introP = simple ? 1 : Math.min(1, elapsed / 1.4);
       const ease = 1 - Math.pow(1 - introP, 3);
-      ptsMat.opacity = 0.65 * ease;
-      wireMat.opacity = 0.34 * ease;
+      ptsMat.opacity = 0.85 * ease;
+      wireMat.opacity = 0.7 * ease;
       spin.scale.setScalar(0.06 + 0.94 * ease);
 
       // autorotation 0.05 rev/s (halved feel in eco)
