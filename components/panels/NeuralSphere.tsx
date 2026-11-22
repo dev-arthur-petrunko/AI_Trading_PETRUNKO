@@ -92,7 +92,7 @@ export function NeuralSphere() {
     const disposables: { dispose: () => void }[] = [];
 
     // ---------- woven wire ball (reference-style) ----------
-    const N = simple ? 1800 : 6500;
+    const N = simple ? 1500 : 4600;
     const GA = Math.PI * (3 - Math.sqrt(5));
 
     const pPos = new Float32Array(N * 3);
@@ -107,21 +107,21 @@ export function NeuralSphere() {
       pPos[i * 3] = x;
       pPos[i * 3 + 1] = y * rad;
       pPos[i * 3 + 2] = z;
-      // colour by latitude WITHOUT white (additive blending blows whites out):
-      // warm amber at the bottom → cold cyan at the top, as on the reference
+      // saturated latitude colours (no white core — it blows out under additive blending)
       const t = (y + 1) / 2; // 0 = bottom … 1 = top
-      const dim = 0.45 + Math.random() * 0.5;
-      pCol[i * 3] = (1.0 + (0.25 - 1.0) * t) * dim;
-      pCol[i * 3 + 1] = (0.55 + (0.8 - 0.55) * t) * dim;
-      pCol[i * 3 + 2] = (0.16 + (1.0 - 0.16) * t) * dim;
+      const dim = 0.55 + Math.random() * 0.45;
+      pCol[i * 3] = (1.0 * (1 - t) + 0.2 * t) * dim;
+      pCol[i * 3 + 1] = (0.45 * (1 - t) + 0.85 * t) * dim;
+      pCol[i * 3 + 2] = (0.12 * (1 - t) + 1.0 * t) * dim;
     }
 
-    // threads: spiral neighbours (tight wind) + long chords (tangle)
+    // threads: spiral neighbours (tight wind) + a few long chords (tangle).
+    // Too many long chords (i+233) merge into a solid haze — keep the ball readable.
     const pairs: number[] = [];
     for (let i = 0; i < N; i++) {
       pairs.push(i, (i + 1) % N);
-      if (i % 3 === 0) pairs.push(i, (i + 41) % N);
-      if (i % 11 === 0) pairs.push(i, (i + 233) % N);
+      if (i % 4 === 0) pairs.push(i, (i + 41) % N);
+      if (i % 47 === 0) pairs.push(i, (i + 233) % N);
     }
     const wireGeo = new THREE.BufferGeometry();
     wireGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
@@ -131,7 +131,7 @@ export function NeuralSphere() {
     const wireMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.34,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -177,7 +177,7 @@ export function NeuralSphere() {
       depthWrite: false,
     });
     const glow = new THREE.Sprite(glowMat);
-    glow.scale.setScalar(1.1);
+    glow.scale.setScalar(0.7);
     spin.add(glow);
     disposables.push(glowMat);
 
@@ -341,12 +341,12 @@ export function NeuralSphere() {
       if (f) {
         const upBias = f.probUp >= f.probDown;
         coreColorTarget = f.clearEdge ? (upBias ? DIR_UP : DIR_DOWN) : AMBER.clone();
-        glowTarget = 0.55 + f.confidence * 0.9;
-        coreOpacityTarget = 0.3 + f.confidence * 0.7;
+        glowTarget = 0.35 + f.confidence * 0.5;
+        coreOpacityTarget = 0.25 + f.confidence * 0.5;
       } else {
         coreColorTarget = AMBER.clone();
-        glowTarget = 0.55;
-        coreOpacityTarget = 0.3;
+        glowTarget = 0.4;
+        coreOpacityTarget = 0.28;
       }
     };
     setForecast(fRef.current);
@@ -458,8 +458,8 @@ export function NeuralSphere() {
       // intro assembly: wire ball "winds up" from a point
       const introP = simple ? 1 : Math.min(1, elapsed / 1.4);
       const ease = 1 - Math.pow(1 - introP, 3);
-      ptsMat.opacity = 0.6 * ease;
-      wireMat.opacity = 0.16 * ease;
+      ptsMat.opacity = 0.65 * ease;
+      wireMat.opacity = 0.34 * ease;
       spin.scale.setScalar(0.06 + 0.94 * ease);
 
       // autorotation 0.05 rev/s (halved feel in eco)
@@ -473,11 +473,11 @@ export function NeuralSphere() {
       // core heartbeat ~1 Hz + colour/brightness easing
       const beat = 1 + Math.sin(elapsed * Math.PI * 2) * 0.09;
       core.scale.setScalar(beat * (0.85 + (fRef.current?.confidence ?? 0.3) * 0.5));
-      glow.scale.setScalar(glowTarget * beat * (1 + (fRef.current?.confidence ?? 0.3) * 0.4));
+      glow.scale.setScalar(glowTarget * beat * (1 + (fRef.current?.confidence ?? 0.3) * 0.3));
       coreMat.color.lerp(coreColorTarget, 0.05);
       glowMat.color.lerp(coreColorTarget, 0.05);
       coreMat.opacity += (coreOpacityTarget * (0.75 + 0.25 * Math.sin(elapsed * Math.PI * 2)) - coreMat.opacity) * 0.08;
-      glowMat.opacity += (glowTarget * 0.9 - glowMat.opacity) * 0.08;
+      glowMat.opacity += (glowTarget * 0.7 - glowMat.opacity) * 0.08;
 
       // rings counter-rotate
       for (const g of rings) g.rotation.z += (g as any).__speed * dt;
