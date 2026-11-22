@@ -107,12 +107,13 @@ export function NeuralSphere() {
       pPos[i * 3] = x;
       pPos[i * 3 + 1] = y * rad;
       pPos[i * 3 + 2] = z;
-      // colour by latitude: top → white/cyan glow, bottom → warm amber (as reference)
-      const t = (y + 1) / 2;
-      const dim = 0.6 + Math.random() * 0.4;
-      pCol[i * 3] = (0.75 + 0.25 * t) * dim;
-      pCol[i * 3 + 1] = (0.55 + 0.45 * t) * dim;
-      pCol[i * 3 + 2] = (0.35 + 0.65 * t) * dim;
+      // colour by latitude WITHOUT white (additive blending blows whites out):
+      // warm amber at the bottom → cold cyan at the top, as on the reference
+      const t = (y + 1) / 2; // 0 = bottom … 1 = top
+      const dim = 0.45 + Math.random() * 0.5;
+      pCol[i * 3] = (1.0 + (0.25 - 1.0) * t) * dim;
+      pCol[i * 3 + 1] = (0.55 + (0.8 - 0.55) * t) * dim;
+      pCol[i * 3 + 2] = (0.16 + (1.0 - 0.16) * t) * dim;
     }
 
     // threads: spiral neighbours (tight wind) + long chords (tangle)
@@ -130,7 +131,7 @@ export function NeuralSphere() {
     const wireMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.42,
+      opacity: 0.16,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -295,7 +296,7 @@ export function NeuralSphere() {
       lgeo.setAttribute("color", new THREE.Float32BufferAttribute(lineCol, 3));
       spokeObj = new THREE.LineSegments(
         lgeo,
-        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false }),
+        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false }),
       );
       spin.add(spokeObj);
 
@@ -329,7 +330,7 @@ export function NeuralSphere() {
         cg.setAttribute("color", new THREE.Float32BufferAttribute(chordCol, 3));
         chordObj = new THREE.LineSegments(
           cg,
-          new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }),
+          new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false }),
         );
         spin.add(chordObj);
       }
@@ -457,8 +458,8 @@ export function NeuralSphere() {
       // intro assembly: wire ball "winds up" from a point
       const introP = simple ? 1 : Math.min(1, elapsed / 1.4);
       const ease = 1 - Math.pow(1 - introP, 3);
-      ptsMat.opacity = 0.9 * ease;
-      wireMat.opacity = 0.42 * ease;
+      ptsMat.opacity = 0.6 * ease;
+      wireMat.opacity = 0.16 * ease;
       spin.scale.setScalar(0.06 + 0.94 * ease);
 
       // autorotation 0.05 rev/s (halved feel in eco)
