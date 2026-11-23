@@ -44,7 +44,7 @@ export function LiveCandles({ compact = false }: { compact?: boolean }) {
         vertLine: { color: "rgba(45,212,255,0.4)", width: 1, style: 3, labelBackgroundColor: "#1B3A5C" },
         horzLine: { color: "rgba(45,212,255,0.4)", width: 1, style: 3, labelBackgroundColor: "#1B3A5C" },
       },
-      rightPriceScale: { borderColor: COLORS.stroke, scaleMargins: { top: 0.12, bottom: 0.14 } },
+      rightPriceScale: { borderColor: COLORS.stroke, scaleMargins: { top: 0.12, bottom: 0.14 } }, // price axis keeps default width; rightOffset below reserves label space (Exercise D)
       timeScale: {
         borderColor: COLORS.stroke,
         timeVisible: true,

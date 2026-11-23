@@ -17,6 +17,18 @@ export function fmtCompact(v: number | undefined): string {
   return v.toFixed(2);
 }
 
+/** Adaptive quantity decimals (Exercise D): tiny BTC amounts must not read as zero.
+ *  >= 100 -> whole number (DOGE size), otherwise max(2, ceil(-log10(qty)+2)) capped at 6. */
+export function fmtQty(v: number | undefined): string {
+  if (v === undefined || !Number.isFinite(v)) return "-";
+  if (v === 0) return "0";
+  if (Math.abs(v) >= 100) return v.toFixed(0);
+  const d = Math.max(2, Math.min(6, Math.ceil(-Math.log10(Math.abs(v)) + 2)));
+  return v.toFixed(d);
+}
+
+/** Adaptive quantity decimals (Exercise D): tiny BTC amounts must not read as zero.
+ *  >= 100 -> whole number (DOGE size), otherwise max(2, ceil(-log10(qty)+2)) capped at 6. */
 export function fmtPct(v: number | undefined, digits = 2): string {
   if (v === undefined || !Number.isFinite(v)) return "—";
   const s = (v * 100).toFixed(digits);

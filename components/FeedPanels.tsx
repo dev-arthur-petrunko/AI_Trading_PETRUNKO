@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Style } from "./Style";
 import { useStore } from "@/lib/store";
 import type { FeedEvent } from "@/lib/types";
-import { hms, fmtPrice, fmtCompact, fmtPct, COLORS } from "@/lib/format";
+import { hms, fmtPrice, fmtCompact, fmtPct, fmtQty, COLORS } from "@/lib/format";
 
 /** Intro overlay: line scan → panels reveal → sphere assembles from points. */
 export function IntroOverlay() {
@@ -56,7 +56,7 @@ function FeedRow({ ev, index }: { ev: FeedEvent; index: number }) {
 
   let text = "";
   if (ev.kind === "trade" || ev.kind === "whale") {
-    text = `${ev.sym} ${ev.side === "buy" ? "покупка" : "продажка"} ${ev.qty?.toFixed(3)} ≈ $${fmtCompact(ev.usd)} ${ev.side === "buy" ? "▲" : "▼"}`;
+    text = `${ev.sym} ${ev.side === "buy" ? "покупка" : "продажка"} ${fmtQty(ev.qty)} ≈ $${fmtCompact(ev.usd)} ${ev.side === "buy" ? "▲" : "▼"}`;
   } else if (ev.kind === "wall") {
     text = `${ev.sym} стенка ${fmtPrice(ev.price, ev.sym)} на $${fmtCompact(ev.usd)} ${ev.side === "bid" ? "бул" : "мед"}`;
   } else {

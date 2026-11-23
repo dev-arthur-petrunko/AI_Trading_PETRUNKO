@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Style } from "@/components/Style";
 import { useStore } from "@/lib/store";
-import { COLORS, fmtPct, hms } from "@/lib/format";
+import { COLORS, fmtPct, fmtQty, hms } from "@/lib/format";
 
 /** EXECUTION TAPE: last trades streaming in, buys green / sells red, flashes on entry. */
 export function ExecutionTape({ max = 8 }: { max?: number }) {
@@ -32,7 +32,7 @@ export function ExecutionTape({ max = 8 }: { max?: number }) {
             <div className={`trow feed-row ${i > 5 ? "faded" : ""}`} key={e.id} style={{ color }}>
               <span className="dim">{hms(e.t)}</span>
               <span className="mono">{e.price!.toLocaleString("en-US", { maximumFractionDigits: 5 })}</span>
-              <span className="mono">{(e.qty ?? 0).toFixed(e.qty && e.qty >= 100 ? 0 : 4)}</span>
+              <span className="mono">{fmtQty(e.qty)}</span>
               <span className="mono dim">{compact(e.usd ?? 0)}</span>
               <span className="side">{buy ? "BUY ▲" : "SELL ▼"}</span>
             </div>

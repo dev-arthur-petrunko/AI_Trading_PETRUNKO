@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Style } from "@/components/Style";
 import { useStore } from "@/lib/store";
-import { fmtPrice, fmtCompact } from "@/lib/format";
+import { fmtPrice, fmtCompact, fmtQty } from "@/lib/format";
 
 /** ORDER BOOK DEPTH: mirrored histogram, bids left / asks right, walls pulsing. */
 export function OrderBook() {
@@ -13,9 +13,30 @@ export function OrderBook() {
   const asks = depth?.asks ?? [];
   const mid = stat?.price ?? ((bids[0]?.[0] ?? 0) + (asks[0]?.[0] ?? 0)) / 2;
 
+  // levels per side: as many as FIT the container height, min 4 (Exercise D)
+  const bookRef = useRef<HTMLDivElement>(null);
+  const [maxRows, setMaxRows] = useState(8);
+  useEffect(() => {
+    const el = bookRef.current;
+    if (!el) return;
+    const measure = () => {
+      const row = el.querySelector(".lvl") as HTMLElement | null;
+      const rowH = row ? row.getBoundingClientRect().height : 24;
+      const h = el.clientHeight;
+      if (h < 4) return;
+      const n = Math.max(4, Math.min(8, Math.floor((h + 2) / (rowH + 2))));
+      setMaxRows((v) => (v === n ? v : n));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    const iv = setInterval(measure, 2500);
+    return () => { ro.disconnect(); clearInterval(iv); };
+  }, []);
+
   const { rows, maxQty, wallLevel } = useMemo(() => {
-    const b = bids.slice(0, 8);
-    const a = asks.slice(0, 8);
+    const b = bids.slice(0, maxRows);
+    const a = asks.slice(0, maxRows);
     const all = [...b, ...a];
     const maxQty = Math.max(1e-9, ...all.map(([, q]) => q));
     // wall = largest single level (highlighted + pulsing)
@@ -26,7 +47,7 @@ export function OrderBook() {
       ...a.map(([p, q]) => ({ side: "ask" as const, p, q })),
     ];
     return { rows, maxQty, wallLevel: wall };
-  }, [depth]);
+  }, [depth, maxRows]);
 
   const imbalance = depth?.imbalance ?? 0;
 
@@ -44,7 +65,7 @@ export function OrderBook() {
         </div>
       </div>
 
-      <div className="book">
+      <div className="book" ref={bookRef}>
         {rows.length === 0 && <div className="empty mono">загрузка стакана…</div>}
         {rows.map((r, i) => {
           const isWall = wallLevel && r.p === wallLevel[0] && r.q === wallLevel[1];
@@ -68,7 +89,7 @@ export function OrderBook() {
               <span className={`px mono ${r.side === "bid" ? "bull" : "bear"}`}>
                 {fmtPrice(r.p, symbol)}
               </span>
-              <span className="qty mono">{r.q.toFixed(r.q >= 100 ? 0 : 3)}</span>
+              <span className="qty mono">{fmtQty(r.q)}</span>
             </div>
           );
         })}

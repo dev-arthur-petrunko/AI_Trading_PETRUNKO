@@ -37,7 +37,7 @@ export function FngGauge() {
 
   return (
     <div className="fng">
-      <svg viewBox="0 0 200 118" className="gauge" preserveAspectRatio="xMidYMid meet">
+      <svg viewBox="0 0 200 132" className="gauge" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="fgArc" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor={COLORS.bear} />
@@ -81,7 +81,7 @@ export function FngGauge() {
         <text x="100" y="84" fill={color} fontSize="26" textAnchor="middle" fontWeight="700" fontFamily="JetBrains Mono, monospace" filter="url(#fgGlow)">
           {Math.round(shown)}
         </text>
-        <text x="100" y="114" fill={COLORS.dim} fontSize="8" textAnchor="middle" letterSpacing="2" fontFamily="JetBrains Mono, monospace">
+        <text x="100" y="127" fill={COLORS.dim} fontSize="8" textAnchor="middle" letterSpacing="2" fontFamily="JetBrains Mono, monospace">
           {label.toUpperCase()}
         </text>
       </svg>
