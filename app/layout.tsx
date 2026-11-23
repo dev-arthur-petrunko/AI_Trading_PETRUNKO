@@ -23,6 +23,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap"
           rel="stylesheet"
         />
+        {/* Высота динамической адресной строки телефона — min-height сцен в dvh (Exercise §A) */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `:root{--dvh:1dvh; --dvw:1dvw; @supports not (height: 100dvh) { :root { --dvh: 1vh; --dvw: 1vw; } }}`,
+          }}
+        />
       </head>
       <body>{children}</body>
     </html>

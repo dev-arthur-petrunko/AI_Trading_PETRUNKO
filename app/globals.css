@@ -13,8 +13,8 @@
   --ink: #d8e6f5;
   --dim: #6f8aa8;
 
-  /* 1 design px of the 1920×1080 reference canvas */
-  --u: calc(min(100vw, 177.78vh) / 1920);
+  /* 1 design px — текучая база: ширина экрана / 1920 (см. lib/layout.config.ts) */
+  --u: calc(100vw / 1920);
 
   --fs-xs: max(9px, calc(var(--u) * 11));
   --fs-s: max(10px, calc(var(--u) * 13));
@@ -40,13 +40,15 @@ body { background: var(--bg); }
 
 .mono, .tab-nums { font-family: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
 
-/* ------------------------------------------------------------------ stage */
+/* ------------------------------------------------------------------ stage
+   Текучая сцена (Exercise §A): без жёсткого 16:9 — занимает весь экран,
+   чёрных полей нет; высота — 100dvh (учёт адресной строки телефона). */
 .stage {
   position: relative;
-  width: min(100vw, calc(100vh * 16 / 9));
-  aspect-ratio: 16 / 9;
+  width: 100%;
+  min-height: 100dvh;
   margin: 0 auto;
-  overflow: hidden;
+  overflow: hidden; /* страховка: обрезку контента ловит автотест (Exercise §F) */
   background: var(--bg);
 }
 
@@ -87,6 +89,9 @@ body { background: var(--bg); }
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+  /* контейнерные запросы: стили внутри панели зависят от ЕЁ ширины (Exercise §A) */
+  container-type: inline-size;
+  container-name: panel;
 }
 .panel::after {
   /* rare electric gleam along the frame */
@@ -138,6 +143,25 @@ body { background: var(--bg); }
   0% { opacity: 0; clip-path: inset(50% 0 50% 0); filter: brightness(3) saturate(0); }
   60% { opacity: 1; filter: brightness(1.6); }
   100% { opacity: 1; clip-path: inset(0 0 0 0); filter: none; }
+}
+
+/* ------------------------------------------------ приоритет контента (Exercise §A)
+   data-prio="1|2|3": 1 — главное число (не прячем никогда),
+   2 — вторичные подписи, 3 — третичное (спарклайны, легенда, хвосты стакана).
+   Узкая карточка теряет сначала 3, потом 2. Пороги — по ширине САМОЙ панели. */
+@container panel (max-width: 300px) {
+  .panel [data-prio="3"] { display: none !important; }
+}
+@container panel (max-width: 205px) {
+  .panel [data-prio="2"] { display: none !important; }
+}
+/* шапка панели масштабируется от ширины контейнера, а не экрана */
+@container panel (max-width: 330px) {
+  .panel-head { font-size: clamp(8px, 3.1cqw, 11px); letter-spacing: 0.1em; gap: clamp(3px, 1.6cqw, 7px); padding: clamp(3px, 1.8cqw, 7px) clamp(4px, 2.4cqw, 10px); }
+  .panel-head .ico { font-size: clamp(8px, 3.4cqw, 12px); }
+}
+@container panel (max-width: 230px) {
+  .panel-head .dot { display: none; }
 }
 
 /* ------------------------------------------------------------------ text */
@@ -292,12 +316,46 @@ body { background: var(--bg); }
   }
 }
 
-/* ------------------------------------------------------------------ mobile: 9:16 column */
-@media (max-width: 1024px) {
-  :root { --u: calc(100vw / 430); }
+/* ------------------------------------------------------------------ adaptive
+   Четыре режима (Exercise §B) — числа синхронны с lib/layout.config.ts
+   M «Планшет»: 700–1099 или портрет ≥700                                */
+@media (max-width: 1099px), (orientation: portrait) and (max-width: 1499px) {
+  :root { --u: calc(100vw / 900); }
   html, body { overflow-x: hidden; }
-  .stage { width: 100vw; aspect-ratio: auto; min-height: 100vh; }
-  .panel-body { padding: calc(var(--u) * 14); }
+  .stage { min-height: 100dvh; }
+  .panel-body { padding: calc(var(--u) * 12); }
+}
+
+/* S «Телефон»: <700 — формат 9:16, колонка, навигация отдельной строкой    */
+@media (max-width: 699px) {
+  :root { --u: calc(100vw / 430); }
+  .topbar { padding: calc(var(--u) * 6) calc(var(--u) * 8); gap: calc(var(--u) * 8); flex-wrap: wrap; }
+  .brand-name { display: none; }
+  .nav { order: 3; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-item { padding: calc(var(--u) * 5) calc(var(--u) * 7); font-size: calc(var(--fs-xs) * 0.92); }
+  .right { gap: calc(var(--u) * 6); flex-wrap: wrap; justify-content: flex-end; }
+  .src-btn { padding: calc(var(--u) * 4) calc(var(--u) * 6); }
+  .title-block { padding: calc(var(--u) * 4) 0 calc(var(--u) * 2) !important; }
+  .title-block h1 { font-size: clamp(20px, calc(var(--u) * 30), 34px) !important; letter-spacing: 0.1em !important; }
+  .title-block .sub { display: none; }
+  .pills { gap: calc(var(--u) * 4); }
+  .pill { padding: calc(var(--u) * 4) calc(var(--u) * 7); }
+  .content { padding: calc(var(--u) * 6) calc(var(--u) * 6) calc(var(--u) * 4); }
+  .foot { gap: calc(var(--u) * 6); padding: calc(var(--u) * 4) calc(var(--u) * 6); flex-wrap: wrap; }
+  .foot .disclaimer { flex: 1 1 100%; order: 3; }
+  /* AI Metrics — карусель с scroll-snap при свайпе (Exercise §B, режим S) */
+  .metrics { flex-direction: row !important; overflow-x: auto !important; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+  .metrics .mcard { min-width: 64%; scroll-snap-align: start; flex: 0 0 auto; }
+}
+
+/* короткий ландшафт (телефон поперёк): сжатая шапка, заголовок-подпись скрыта */
+@media (max-height: 540px) and (orientation: landscape) and (min-width: 640px) {
+  :root { --u: calc(100vh / 320); }
+  .title-block { padding: calc(var(--u) * 2) 0 !important; }
+  .title-block h1 { font-size: clamp(20px, calc(var(--u) * 40), 34px) !important; }
+  .title-block .sub { display: none; }
+  .topbar { min-height: auto; }
 }
 
 
@@ -313,37 +371,7 @@ body { background: var(--bg); }
 .recv-badge.on.bull { color: var(--bull); border-color: var(--bull); box-shadow: 0 0 calc(var(--u) * 10) rgba(25, 245, 138, 0.5); }
 .recv-badge.on.bear { color: var(--bear); border-color: var(--bear); box-shadow: 0 0 calc(var(--u) * 10) rgba(255, 59, 92, 0.5); }
 
-/* ---------------- adaptive: small phones (≤560px) ---------------- */
-@media (max-width: 560px) {
-  :root { --u: calc(100vw / 400); }
-  .topbar { padding: calc(var(--u) * 6) calc(var(--u) * 8); gap: calc(var(--u) * 8); flex-wrap: wrap; }
-  .brand-name { display: none; }
-  .nav { order: 3; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .nav::-webkit-scrollbar { display: none; }
-  .nav-item { padding: calc(var(--u) * 5) calc(var(--u) * 7); font-size: calc(var(--fs-xs) * 0.92); }
-  .right { gap: calc(var(--u) * 6); flex-wrap: wrap; justify-content: flex-end; }
-  .src-btn { padding: calc(var(--u) * 4) calc(var(--u) * 6); }
-  .title-block { padding: calc(var(--u) * 4) 0 calc(var(--u) * 2) !important; }
-  .title-block h1 { font-size: calc(var(--u) * 24) !important; letter-spacing: 0.1em !important; }
-  .title-block .sub { display: none; }
-  .pills { gap: calc(var(--u) * 4); }
-  .pill { padding: calc(var(--u) * 4) calc(var(--u) * 7); }
-  .content { padding: calc(var(--u) * 6) calc(var(--u) * 6) calc(var(--u) * 4); }
-  .foot { gap: calc(var(--u) * 6); padding: calc(var(--u) * 4) calc(var(--u) * 6); flex-wrap: wrap; }
-  .foot .disclaimer { flex: 1 1 100%; order: 3; }
-}
-
-/* ---------------- adaptive: short landscape (phone on the side) ---------------- */
-@media (max-height: 540px) and (orientation: landscape) and (min-width: 640px) {
-  :root { --u: calc(100vh / 300); }
-  .title-block { padding: calc(var(--u) * 2) 0 !important; }
-  .title-block h1 { font-size: calc(var(--u) * 34) !important; }
-  .title-block .sub { display: none; }
-  .topbar { min-height: auto; }
-  .dash-grid { grid-template-rows: calc(var(--u) * 150) 1fr calc(var(--u) * 165) !important; }
-}
-
-/* ---------------- language switcher RU / EN / UA ---------------- */
+/* ---------------- adaptive: language switcher RU / EN / UA (заголовки сняты выше — см. блок S) */
 .lang { display: flex; gap: calc(var(--u) * 3); }
 .lang-btn {
   background: rgba(10,20,35,0.85); border: 1px solid var(--stroke); color: var(--dim);

@@ -135,9 +135,9 @@ export function MetricCards() {
             <div className="mbar">
               <div className="mfill" style={{ width: `${Math.max(2, Math.min(100, m.bar(ctx) * 100))}%`, background: t }} />
             </div>
-            <Spark values={m.spark(ctx)} color={t} />
+            <Spark values={m.spark(ctx)} color={t} prio="3" />
             {m.key === "prob" && fng && (
-              <div className="fnote mono dim">F&G {fng.value} · {fng.label}</div>
+              <div className="fnote mono dim" data-prio="2">F&G {fng.value} · {fng.label}</div>
             )}
           </div>
         );
@@ -176,16 +176,17 @@ export function MetricCards() {
   );
 }
 
-function Spark({ values, color }: { values: number[]; color: string }) {
+function Spark({ values, color, prio }: { values: number[]; color: string; prio?: "2" | "3" }) {
   const ref = useRef<SVGSVGElement>(null);
   const w = 60;
   const h = 20;
+  const pr = prio ? { "data-prio": prio } : {};
 
   useEffect(() => {
     // smooth scroll illusion: nothing to do — data shifts every tick, svg re-renders
   }, [values]);
 
-  if (!values || values.length < 2) return <svg className="spark" width={w} height={h} />;
+  if (!values || values.length < 2) return <svg className="spark" width={w} height={h} {...pr} />;
 
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -195,7 +196,7 @@ function Spark({ values, color }: { values: number[]; color: string }) {
     .join(" ");
 
   return (
-    <svg className="spark" width={w} height={h} viewBox={`0 0 ${w} ${h}`} ref={ref}>
+    <svg className="spark" width={w} height={h} viewBox={`0 0 ${w} ${h}`} ref={ref} {...pr}>
       <polyline points={pts} fill="none" stroke={color} strokeWidth="1.2" opacity="0.9" />
       <polyline points={`0,${h} ${pts} ${w},${h}`} fill={`${color}22`} stroke="none" />
     </svg>

@@ -133,7 +133,7 @@ export function ForecastFan() {
           </div>
         </div>
 
-        <div className="fan-legend mono">
+        <div className="fan-legend mono" data-prio="3">
           <span><i className="sw" style={{ background: COLORS.ink }} />медиана</span>
           <span><i className="sw" style={{ background: "rgba(255,176,32,0.55)" }} />ядро 50%</span>
           <span><i className="sw" style={{ background: "rgba(45,212,255,0.5)" }} />диапазон 90%</span>
@@ -149,7 +149,7 @@ export function ForecastFan() {
           </button>
         ))}
         <span className="grow" />
-        <span className="fan-note mono dim">
+        <span className="fan-note mono dim" data-prio="2">
           медиана {pct(med)} · ядро 50% [{pct(q.p50)}] · обновлено {new Date(data.computedAt).toLocaleTimeString("ru-RU")}
         </span>
       </div>

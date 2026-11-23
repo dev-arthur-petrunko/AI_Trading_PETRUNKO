@@ -29,14 +29,14 @@ export function PriceSpot() {
         />
       </div>
 
-      <div className="grid4">
+      <div className="grid4" data-prio="2">
         <Cell label="24H" value={fmtPct((stat?.chg ?? 0) / 100)} tone={up ? "bull" : "bear"} />
         <Cell label="VOL" value={"$" + fmtCompact(stat?.vol)} tone="cy" />
         <Cell label="HIGH" value={fmtPrice(stat?.high, symbol)} tone="dim" />
         <Cell label="LOW" value={fmtPrice(stat?.low, symbol)} tone="dim" />
       </div>
 
-      <div className="src-line mono">
+      <div className="src-line mono" data-prio="3">
         источник: {stat?.src ?? "—"}
         {stat?.altPrice ? ` · зеркало ${fmtPrice(stat.altPrice, symbol)}` : ""}
       </div>
@@ -57,10 +57,11 @@ export function PriceSpot() {
         .cell.cy-b { border-color: var(--cyan); }
         .cell .lbl { display: block; font-family: "JetBrains Mono", monospace; font-size: calc(var(--fs-xs) * 0.86); color: var(--dim); letter-spacing: 0.14em; }
         .cell .val { display: block; font-family: "JetBrains Mono", monospace; font-size: var(--fs-s); font-variant-numeric: tabular-nums; white-space: nowrap; }
-        .src-line { font-size: calc(var(--fs-xs) * 0.9); color: var(--dim); letter-spacing: 0.06em; margin-top: auto; }
-        @media (max-width: 1024px) {
-          .price { font-size: calc(var(--u) * 46); }
-        }
+        .src-line { font-size: clamp(7px, calc(var(--fs-xs) * 0.9), calc(var(--fs-xs) * 0.9)); color: var(--dim); letter-spacing: 0.06em; margin-top: auto; }
+        /* цена масштабируется от ширины панели (container), не экрана */
+        .price { font-size: clamp(22px, 9.5cqw, var(--fs-2xl)); }
+        .cell .val { font-size: clamp(9px, 4.4cqw, var(--fs-s)); }
+        .cell .lbl { font-size: clamp(7px, 3.7cqw, calc(var(--fs-xs) * 0.86)); }
       `}</Style>
     </div>
   );

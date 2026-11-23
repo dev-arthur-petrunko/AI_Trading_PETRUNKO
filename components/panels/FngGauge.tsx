@@ -86,7 +86,7 @@ export function FngGauge() {
         </text>
       </svg>
 
-      <div className="legend mono">
+      <div className="legend mono" data-prio="3">
         <span className="bear">FEAR</span>
         <span className="dim">страх ↔ жадность · обновлено {fng ? new Date(fng.updatedAt).toISOString().slice(5, 10) : "—"}</span>
         <span className="bull">GREED</span>

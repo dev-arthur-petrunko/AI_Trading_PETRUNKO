@@ -50,7 +50,7 @@ export function OrderBook() {
           const isWall = wallLevel && r.p === wallLevel[0] && r.q === wallLevel[1];
           const w = (r.q / maxQty) * 100;
           return (
-            <div className={`lvl ${r.side}`} key={`${r.side}-${r.p}-${i}`}>
+            <div className={`lvl ${r.side}`} key={`${r.side}-${r.p}-${i}`} data-prio={i >= 4 ? "3" : undefined}>
               <div
                 className={`fill ${isWall ? "wall" : ""}`}
                 style={{
