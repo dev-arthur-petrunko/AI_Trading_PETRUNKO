@@ -33,6 +33,31 @@ const DIR_DOWN = new THREE.Color("#FF3B5C");
 const DIR_FLAT = new THREE.Color("#2DD4FF");
 const AMBER = new THREE.Color("#FFB020");
 
+/** Насечки гимбала: каждые 5°, длинные каждые 30° (Exercise §C1). */
+const DIAL_TICKS = Array.from({ length: 72 }, (_, i) => {
+  const a = (i * 5 * Math.PI) / 180;
+  const long = i % 18 === 0;
+  const mid = i % 6 === 0;
+  const r0 = long ? 85 : mid ? 90 : 93;
+  return (
+    <line
+      key={i}
+      x1={100 + Math.cos(a) * r0}
+      y1={100 + Math.sin(a) * r0}
+      x2={100 + Math.cos(a) * 97}
+      y2={100 + Math.sin(a) * 97}
+      stroke="rgba(45,212,255,0.65)"
+      strokeWidth={long ? 1.6 : 0.7}
+    />
+  );
+});
+const DIAL_LABELS: [string, number, number][] = [
+  ["0", 100, 12],
+  ["90", 188, 103],
+  ["180", 100, 194],
+  ["270", 12, 103],
+];
+
 function glowTexture(): THREE.Texture {
   const c = document.createElement("canvas");
   c.width = c.height = 64;
@@ -414,14 +439,24 @@ export function NeuralSphere() {
     ray.params.Points = { threshold: 0.07 } as any;
 
     // ---------- resize ----------
-    const ro = new ResizeObserver(() => {
+    const wrap = mount.parentElement as HTMLElement | null;
+    const resize = () => {
+      // круг шара (Exercise §C1): D = min(W,H)·0.9 с запасом под подписи UP/DOWN/текст
+      if (wrap) {
+        const W = wrap.clientWidth || 600;
+        const H = wrap.clientHeight || 400;
+        const D = Math.max(150, Math.min(Math.min(W, H) * 0.9, H - 168));
+        wrap.style.setProperty("--D", `${Math.round(D)}px`);
+      }
       w = mount.clientWidth || 600;
       h = mount.clientHeight || 400;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-    });
-    ro.observe(mount);
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(wrap ?? mount);
 
     // ---------- core → AI Metrics publication (data flow: sphere → metrics) ----------
     const publish = () => {
@@ -612,6 +647,14 @@ export function NeuralSphere() {
   return (
     <div className="sphere-wrap" key={`${symbol}-${swapKey}`}>
       <div className="sphere-mount" ref={mountRef} />
+      <svg className="dial" viewBox="0 0 200 200" aria-hidden>
+        <circle cx="100" cy="100" r="97" fill="none" stroke="rgba(45,212,255,0.4)" strokeWidth="1" />
+        <circle cx="100" cy="100" r="74" fill="none" stroke="rgba(45,212,255,0.16)" strokeWidth="0.6" strokeDasharray="2 5" />
+        {DIAL_TICKS}
+        {DIAL_LABELS.map(([txt, x, y]) => (
+          <text key={txt} x={x} y={y} textAnchor="middle" fill="rgba(45,212,255,0.75)" fontSize="8" fontFamily="JetBrains Mono, monospace">{txt}</text>
+        ))}
+      </svg>
       <div className="tip mono" ref={tipRef} />
 
       <div className="pole up">
@@ -650,12 +693,13 @@ const sphereCss = `
   box-shadow: 0 0 16px rgba(45,212,255,0.3);
 }
 .tip b { color: var(--cyan); letter-spacing: 0.08em; }
-.pole { position: absolute; display: flex; align-items: baseline; gap: calc(var(--u) * 8); font-family: "Orbitron", sans-serif; pointer-events: none; }
+.pole { position: absolute; display: flex; align-items: baseline; gap: calc(var(--u) * 8); font-family: "Orbitron", sans-serif; pointer-events: none; z-index: 2; }
 .pole .k { font-size: var(--fs-l); letter-spacing: 0.22em; color: var(--ink); opacity: 0.85; }
-.pole .v { font-size: var(--fs-xl); font-weight: 800; font-family: "JetBrains Mono", monospace; }
-.pole.up { top: calc(var(--u) * 10); left: 50%; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 0; }
-.pole.down { bottom: calc(var(--u) * 44); left: 50%; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 0; }
-.pole.flat { bottom: calc(var(--u) * 44); right: calc(var(--u) * 14); flex-direction: column; align-items: flex-end; gap: 0; }
+.pole .v { font-size: clamp(16px, calc(var(--D, 300px) * 0.115), var(--fs-xl)); font-weight: 800; font-family: "JetBrains Mono", monospace; }
+/* labels outside the circle (Exercise C1): UP on top, DOWN right under the circle */
+.pole.up { top: calc(var(--u) * 6); left: 50%; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 0; }
+.pole.down { bottom: calc((100% - var(--D, 86%)) / 2 + var(--u) * 2); left: 50%; transform: translateX(-50%); flex-direction: column-reverse; align-items: center; gap: 0; }
+.pole.flat { top: calc(50% + var(--D, 86%) * 0.42); right: calc(var(--u) * 4); flex-direction: column; align-items: flex-end; gap: 0; }
 .pole.flat .k, .pole.flat .v { font-size: var(--fs-s); letter-spacing: 0.14em; }
 .edge {
   position: absolute; top: calc(var(--u) * 12); right: calc(var(--u) * 14);
@@ -663,16 +707,16 @@ const sphereCss = `
   letter-spacing: 0.18em; animation: dotBlink 1.6s ease-in-out infinite;
 }
 .summary {
-  position: absolute; left: calc(var(--u) * 12); right: calc(var(--u) * 12);
-  bottom: calc(var(--u) * 8); text-align: center;
+  position: absolute; left: calc(var(--u) * 8); right: calc(var(--u) * 8);
+  bottom: calc(var(--u) * 4); text-align: center; z-index: 2;
   font-size: calc(var(--fs-xs) * 0.95); color: var(--dim);
   letter-spacing: 0.04em; line-height: 1.5;
   background: linear-gradient(90deg, transparent, rgba(5,10,18,0.85) 15%, rgba(5,10,18,0.85) 85%, transparent);
   padding: calc(var(--u) * 4) 0; pointer-events: none;
 }
 .recv-badge { position: static; }
-@media (max-width: 1024px) {
-  .sphere-wrap { min-height: calc(var(--u) * 460); }
-  .pole .v { font-size: calc(var(--u) * 30); }
+@media (max-width: 699px) {
+  .sphere-wrap { min-height: calc(var(--u) * 380); }
+  .pole .v { font-size: clamp(15px, calc(var(--D, 260px) * 0.13), calc(var(--u) * 46)); }
 }
 `;

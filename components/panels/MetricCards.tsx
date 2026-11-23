@@ -8,6 +8,7 @@ import { COLORS, fmtPct, fmtNum } from "@/lib/format";
 type MetricDef = {
   key: string;
   label: string;
+  accent: string;
   value: (ctx: Ctx) => string;
   bar: (ctx: Ctx) => number; // 0..1 fill
   tone: (ctx: Ctx) => string;
@@ -69,6 +70,7 @@ export function MetricCards() {
   const metrics: MetricDef[] = [
     {
       key: "prob",
+      accent: "#19F58A",
       label: t("m.prob"),
       value: (c) => `${(c.probUp * 100).toFixed(1)}%`,
       bar: (c) => c.probUp,
@@ -77,6 +79,7 @@ export function MetricCards() {
     },
     {
       key: "conf",
+      accent: "#2DD4FF",
       label: t("m.conf"),
       value: (c) => `${(c.confidence * 100).toFixed(0)}%`,
       bar: (c) => c.confidence,
@@ -85,6 +88,7 @@ export function MetricCards() {
     },
     {
       key: "rsi",
+      accent: "#8A7BFF",
       label: "RSI 14",
       value: (c) => fmtNum(c.rsi, 1),
       bar: (c) => c.rsi / 100,
@@ -93,6 +97,7 @@ export function MetricCards() {
     },
     {
       key: "macd",
+      accent: "#FFB020",
       label: "MACD HIST",
       value: (c) => fmtPct(c.macdHist / Math.max(1e-9, c.history.at(-1) ?? 1), 3),
       bar: (c) => Math.min(1, Math.abs(c.macdHist) / Math.max(1e-9, (c.history.at(-1) ?? 1) * 0.004)),
@@ -101,6 +106,7 @@ export function MetricCards() {
     },
     {
       key: "vol",
+      accent: "#FF7A45",
       label: t("m.vol"),
       value: (c) => `${c.volatility.toFixed(1)}%`,
       bar: (c) => Math.min(1, c.volatility / 150),
@@ -109,6 +115,7 @@ export function MetricCards() {
     },
     {
       key: "funding",
+      accent: "#7FE0FF",
       label: "FUNDING RATE",
       value: (c) => (c.funding !== undefined ? `${(c.funding * 100).toFixed(4)}%` : "—"),
       bar: (c) => Math.min(1, Math.abs(c.funding ?? 0) / 0.0005),
@@ -125,7 +132,7 @@ export function MetricCards() {
       {metrics.map((m) => {
         const t = m.tone(ctx);
         return (
-          <div className="mcard" key={m.key}>
+          <div className="mcard" key={m.key} style={{ ["--acc" as string]: m.accent } as React.CSSProperties}>
             <div className="mrow">
               <span className="mlabel">{m.label}</span>
               <span className="mval mono" style={{ color: t, textShadow: `0 0 calc(var(--u)*8) ${t}55` }}>
@@ -163,7 +170,7 @@ export function MetricCards() {
           0% { border-left-color: var(--cyan); background: rgba(45,212,255,0.22); box-shadow: inset 0 0 calc(var(--u) * 12) rgba(45,212,255,0.25); }
           100% { background: rgba(5,10,18,0.35); box-shadow: none; }
         }
-        .mcard { border-left: calc(var(--u) * 3) solid var(--stroke); padding: calc(var(--u) * 4) calc(var(--u) * 8); background: rgba(5,10,18,0.35); }
+        .mcard { border-left: calc(var(--u) * 3) solid var(--acc, var(--stroke)); padding: calc(var(--u) * 4) calc(var(--u) * 8); background: rgba(5,10,18,0.35); }
         .mrow { display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--u) * 6); }
         .mlabel { font-family: "JetBrains Mono", monospace; font-size: calc(var(--fs-xs) * 0.82); color: var(--dim); letter-spacing: 0.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mval { font-size: var(--fs-m); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }

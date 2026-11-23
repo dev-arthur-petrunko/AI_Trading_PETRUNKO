@@ -14,6 +14,7 @@ import { FngGauge } from "@/components/panels/FngGauge";
 import { MetricCards } from "@/components/panels/MetricCards";
 import { NeuralSphere } from "@/components/panels/NeuralSphere";
 import { DashboardAgents } from "@/components/panels/Agents";
+import { OrbitLayer } from "@/components/Orbit";
 import { AnalogTimeline } from "@/components/panels/AnalogTimeline";
 import { ForecastFan } from "@/components/panels/ForecastFan";
 import { ExecutionTape } from "@/components/panels/ExecutionTape";
@@ -38,6 +39,7 @@ function Backdrop() {
 function Dashboard() {
   return (
     <div className="dash-grid">
+      <OrbitLayer />
       <Panel title="Price / Spot" icon="¢" delay={100} className="g-price">
         <PriceSpot />
       </Panel>
@@ -99,8 +101,8 @@ function Dashboard() {
         .g-sphere  { grid-column: 3 / span 6;  grid-row: 2 / 4; }
         .g-feed    { grid-column: 9 / span 2;  grid-row: 2; }
         .g-fan     { grid-column: 11 / span 2; grid-row: 2; }
-        .g-timeline{ grid-column: 9 / span 2;  grid-row: 3; }
-        .g-tape    { grid-column: 11 / span 2; grid-row: 3; }
+        .g-timeline{ grid-column: 9 / span 3;  grid-row: 3; }
+        .g-tape    { grid-column: 12 / span 1; grid-row: 3; }
 
         /* XL «Орбита» (≥1500 и шире 1.45): боковые колонки растут в узкий центр,
            свободная ширина уходит им, а не в пустые поля (Exercise §B). */
