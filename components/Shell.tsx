@@ -89,6 +89,7 @@ function Dashboard() {
           grid-template-columns: repeat(12, minmax(0, 1fr));
           grid-template-rows: minmax(150px, 19%) minmax(0, 1fr) minmax(180px, 21%);
           gap: calc(var(--u) * 8);
+          transition: grid-template-columns 0.3s ease, grid-template-rows 0.3s ease;
           flex: 1;
           min-height: 720px; /* минимальная рабочая высота (Exercise §A) */
         }

@@ -384,3 +384,34 @@ body { background: var(--bg); }
   color: #03130b; background: var(--cyan); border-color: var(--cyan);
   box-shadow: 0 0 10px rgba(45,212,255,0.45); font-weight: 700;
 }
+
+/* ---------------------------------------------------------- orbit apply (Exercise C2/E)
+   --arc-offset считает Orbit.tsx (шаг по дуге), здесь он применяется к карточке:
+   смещение ОТ шара: левая уходит влево, правая вправо, верх вверх, низ вниз.
+   Внутренний край (обращённый к шару) скруглён. Переход 300 мс — плавная
+   перестройка при смене режима/ресайзе, без «прыжка». */
+@property --arc-offset { syntax: "<length>"; inherits: false; initial-value: 0px; }
+.dash-grid > .panel { transition: transform 0.3s ease, border-radius 0.3s ease; }
+[data-orbit="left"] {
+  transform: translateX(calc(-1 * var(--arc-offset, 0px)));
+  border-top-right-radius: calc(var(--u) * 30);
+  border-bottom-right-radius: calc(var(--u) * 30);
+}
+[data-orbit="right"] {
+  transform: translateX(var(--arc-offset, 0px));
+  border-top-left-radius: calc(var(--u) * 30);
+  border-bottom-left-radius: calc(var(--u) * 30);
+}
+[data-orbit="top"] {
+  transform: translateY(calc(-1 * var(--arc-offset, 0px)));
+  border-bottom-left-radius: calc(var(--u) * 30);
+  border-bottom-right-radius: calc(var(--u) * 30);
+}
+[data-orbit="bottom"] {
+  transform: translateY(var(--arc-offset, 0px));
+  border-top-left-radius: calc(var(--u) * 30);
+  border-top-right-radius: calc(var(--u) * 30);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dash-grid > .panel { transition-duration: 0.1s; }
+}
