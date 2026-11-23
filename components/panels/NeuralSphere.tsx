@@ -682,8 +682,16 @@ export function NeuralSphere() {
 
 const sphereCss = `
 .sphere-wrap { position: relative; height: 100%; min-height: 0; overflow: hidden; }
-.sphere-mount { position: absolute; inset: 0; }
+.sphere-mount { position: absolute; left: 50%; top: 50%; width: var(--D, 86%); height: var(--D, 86%); transform: translate(-50%, -50%); }
 .sphere-mount canvas { display: block; }
+.dial {
+  position: absolute; left: 50%; top: 50%;
+  width: var(--D, 86%); height: var(--D, 86%);
+  transform: translate(-50%, -50%);
+  pointer-events: none; z-index: 1; overflow: visible;
+  animation: dialSpin 160s linear infinite;
+}
+@keyframes dialSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 .tip {
   position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none;
   background: rgba(5,10,18,0.95); border: 1px solid var(--cyan);

@@ -62,6 +62,19 @@ export function PriceSpot() {
         .price { font-size: clamp(22px, 9.5cqw, var(--fs-2xl)); }
         .cell .val { font-size: clamp(9px, 4.4cqw, var(--fs-s)); }
         .cell .lbl { font-size: clamp(7px, 3.7cqw, calc(var(--fs-xs) * 0.86)); }
+        /* narrow panel (§F): 2x2 so values are never cut */
+        @container panel (max-width: 460px) {
+          .grid4 { grid-template-columns: repeat(2, 1fr); }
+          .cell { min-width: 0; overflow: hidden; }
+          .cell .val { letter-spacing: -0.02em; }
+        }
+        /* ultra narrow / short landscape (§F 844x390): drop HIGH+LOW, keep 24H+VOL */
+        @container panel (max-width: 210px) {
+          .grid4 .cell:nth-child(3), .grid4 .cell:nth-child(4) { display: none; }
+          .cell { padding-left: calc(var(--u) * 4); }
+          .cell .val { font-size: clamp(7px, 11cqw, 10px); letter-spacing: -0.04em; overflow: hidden; }
+          .cell .lbl { font-size: clamp(6px, 9cqw, 9px); letter-spacing: 0.06em; overflow: hidden; }
+        }
       `}</Style>
     </div>
   );

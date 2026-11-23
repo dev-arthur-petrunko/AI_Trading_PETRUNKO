@@ -49,6 +49,16 @@ export function ExecutionTape({ max = 8 }: { max?: number }) {
         .empty { color: var(--dim); font-size: var(--fs-xs); padding: calc(var(--u) * 6); }
         .faded { opacity: 0.4; }
         @media (max-width: 1024px) { .thead, .trow { grid-template-columns: 1fr 1.2fr 1fr 1fr; } .thead span:nth-child(4), .trow span:nth-child(4) { display: none; } }
+        .trow span, .thead span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+        /* narrow panel (§F): shed $ first, then time — price/qty/side always fit */
+        @container panel (max-width: 340px) {
+          .thead, .trow { grid-template-columns: 1fr 1.2fr 1fr 1fr; }
+          .thead span:nth-child(4), .trow span:nth-child(4) { display: none; }
+        }
+        @container panel (max-width: 250px) {
+          .thead, .trow { grid-template-columns: 1.2fr 1fr 1fr; }
+          .thead span:nth-child(1), .trow span:nth-child(1) { display: none; }
+        }
       `}</Style>
     </div>
   );
