@@ -1,6 +1,7 @@
 # AI Trading Petrunko
 
-**Real-time crypto market intelligence dashboard** — киберпанк-HUD 16:9, где «нейросфера» ищи исторические
+**Real-time crypto market intelligence dashboard** — киберпанк-HUD с текучей сеткой (4 режима
+адаптива XL/L/M/S), где «нейросфера» ищи исторические
 аналоги рынка, а живые **бычьи (зелёные) и медвежьи (красные) агенты** визуализируют борьбу сторон
 на основе реальных вероятностей модели.
 
@@ -88,12 +89,13 @@ Backend (Node, ws, node:sqlite)  ── «мозг» в worker_threads (не б�
 
 ---
 
-## Дашборд: что на экране (1920×1080, ровно один экран, без скролла)
+## Дашборд: что на экране (текучая сетка, 4 режима XL/L/M/S — ровно один экран на десктопе)
 
-**Верх:** меню (Дашборд · Рынки · Прогнозы · История · Аналоги · Бэктест · О проекте), часы UTC,
-LIVE-пульс, задержка, переключатель источника. Заголовок с дыханием и редким глитчем (8–10 с).
-Таблетки монет (топ по капитализации: BTC ETH BNB XRP SOL DOGE ADA AVAX, TON на Binance/Bybit нет —
-заменён на AVAX). Бегущая строка ticker внизу.
+**Верх:** меню (Дашборд · Рынки · Прогнозы · История · Аналоги · Бэктест · **AI** · О проекте),
+часы UTC, LIVE-пульс, задержка, переключатель источника. Заголовок с дыханием и редким глитчем
+(8–10 с). Таблетки монет: порядок — живой ранг капитализации (CoinGecko), фолбэк
+`BTC ETH SOL BNB XRP DOGE ADA AVAX` (TON на Binance/Bybit нет — заменён на AVAX).
+Бегущая строка ticker внизу.
 
 **Верхний ряд:** PRICE/SPOT (механический roll + вспышка 300 мс, ≥1 тик/с), LIVE CANDLES
 (lightweight-charts, 1m/5m/1h/1d, дышащая последняя свеча), ORDER BOOK (горка bid/ask, пульсирующие
@@ -129,7 +131,12 @@ LIVE-пульс, задержка, переключатель источника
 непрерывные анимации глаз/прыжков/веера, ограничивает DPR), requestAnimationFrame, transform/opacity,
 WebGL-сфера на GPU, автопереподключение WS с backoff, замер RTT (ping/pong).
 
-**Мобильная:** ≤1024px дашборд перестраивается в вертикальную колонку 9:16.
+**Адаптив (4 режима, `lib/layout.config.ts` + CSS-медиазапросы, синхронно):**
+**XL** ≥1500px и ш/в ≥1.45 — полная орбита с лучами; **L** 1100–1499 — компактная орбита;
+**M** 700–1099 **или портрет** — шар сверху, сетка 2 колонки; **S** <700 — колонка 9:16,
+меню отдельной строкой, AI Metrics — карусель scroll-snap. При нехватке высоты страница
+прокручивается, а не сжимается (`min-height: 720px`), панели не выходят за экран
+(кламп орбиты до соседа + отступы `margin: 10u 16u`).
 
 ---
 
@@ -158,8 +165,30 @@ WebGL-сфера на GPU, автопереподключение WS с backoff,
 3. ✅ поиск аналогов возвращает 50 периодов с датами и схожестью (≥10 по ТЗ);
 4. ✅ бэктест показывает точность + калибровку за 2 года;
 5. ✅ переключение Binance/Bybit/Auto работает (health + failover);
-6. ✅ сетка 16:9 = ровно 1080px без внутреннего скролла (проверено на вьюпорте 1920×1080);
+6. ✅ дашборд в один экран на десктопе (проверено автотестом на 10 размерах, без
+   горизонтальной прокрутки и обрезки) — текучая сетка вместо жёсткого 16:9;
 7. ✅ дисклеймер «Не является инвестиционной рекомендацией» — в футере и на вкладке «О проекте».
+
+---
+
+## Автотесты (`tests/`, Playwright)
+
+| Тест | Что проверяет | Статус |
+|---|---|---|
+| `layout_check.mjs` | 10 размеров (3440×1440 … 390×844): нет гориз. скролла, обрезки, вылета панелей за экран; prio-1 видим; шар круглый; нет pageerror. Скриншоты → `tests/screens/` | **ALL_OK 10/10** |
+| `overlap_check.mjs` | 5 размеров: попарное наложение 10 панелей >4px = FAIL | **ALL_OK 5/5** |
+| `console.mjs` | чистота консоли (ловит hydration-mismatch / ошибки React) | **CLEAN** |
+
+Запуск (сайт поднят на `localhost:3000`):
+
+```bash
+node tests/layout_check.mjs     # env: AI_PROJ=<путь к репо>, SITE (по умолчанию localhost:3000)
+node tests/overlap_check.mjs
+node tests/console.mjs
+```
+
+Тесты ждут **реальную гидрацию** (`data-mode` + canvas сферы + снятый intro), а не фиксированные
+секунды — результат детерминирован и в dev, и в prod.
 
 ---
 
@@ -167,16 +196,22 @@ WebGL-сфера на GPU, автопереподключение WS с backoff,
 
 ```
 app/                 # Next.js App Router (page, layout, globals.css)
-components/          # Shell, Chrome, Panel, FeedPanels, TradingViewWidget
+components/          # Shell (сетка/режимы), Chrome (TopBar/Ticker/pills), Panel,
+                     # Style (hydration-safe CSS), RollNumber, Orbit (лучи и дуги орбиты),
+                     # FeedPanels (intro + Live Feed), TradingViewWidget
   panels/            # PriceSpot, LiveCandles, OrderBook, FngGauge, MetricCards,
                      # NeuralSphere, Agents, AnalogTimeline, ForecastFan, ExecutionTape
-  views/             # Markets, Forecast, History, Analogs, Backtest, About
+  views/             # Markets, Forecast, History, Analogs, Backtest, Ai, About
 lib/                 # analyze.ts (единое ядро: индикаторы, DTW-поиск, ансамбль, бэктест),
-                     # store.tsx (WS/REST-состояние), api.ts, types.ts, format.ts
-components/          # Shell, Chrome, Panel, Style (hydration-safe CSS), FeedPanels, TradingViewWidget
+                     # store.tsx (WS/REST-состояние), layout.config.ts (4 режима адаптива),
+                     # api.ts, types.ts, format.ts, i18n.ts (RU/EN/UA)
 server/              # index.mjs (HTTP+WS хаб), exchange.mjs, history.mjs, store.mjs,
-                     # analysis.mjs (пул worker_threads), worker.mjs
+                     # analysis.mjs (пул worker_threads), worker.mjs, accum.mjs (AI-снапшоты)
 tools/               # build-core.mjs (TS→ESM для сервера), debug-скрипты методологии
+tests/               # layout_check.mjs (10 размеров), overlap_check.mjs (наложение),
+                     # console.mjs (чистота консоли), screens/ (скриншоты)
+docs/                # DESIGN.md (визуальная система), LOGIC.md (расчёты и API),
+                     # AI_DATA.md (почасовой накопитель), Exercise.md (ТЗ)
 data/                # SQLite (создаётся при первом запуске, в git не попадает)
 start.bat            # Windows: install → core build → backend :8787 → frontend :3000
 ```
