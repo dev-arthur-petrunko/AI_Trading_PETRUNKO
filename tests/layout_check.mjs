@@ -45,6 +45,14 @@ for (const [w, h] of SIZES) {
       for (const el of document.querySelectorAll('[data-prio="1"]')) {
         if (getComputedStyle(el).display === "none") out.prioHidden.push(el.className.toString().slice(0, 30));
       }
+      // every panel must stay inside the viewport (orbit offsets must not push cards off)
+      out.offscreen = [];
+      for (const el of document.querySelectorAll(".panel")) {
+        const rr = el.getBoundingClientRect();
+        if (rr.width > 0 && (rr.left < -2 || rr.right > window.innerWidth + 2)) {
+          out.offscreen.push((el.className || el.tagName).toString().slice(0, 40));
+        }
+      }
       // sphere round & fully visible
       const wrap = document.querySelector(".sphere-wrap");
       const cvs = document.querySelector(".sphere-mount canvas");
@@ -61,6 +69,7 @@ for (const [w, h] of SIZES) {
     });
 
     if (res.hScroll) issues.push("horizontal page scroll");
+    if (res.offscreen && res.offscreen.length) issues.push("panel off-screen: " + res.offscreen.join(" | "));
     if (res.clipped.length) issues.push("clipped: " + res.clipped.join(" | "));
     if (res.prioHidden.length) issues.push("prio1 hidden: " + res.prioHidden.join(" | "));
     if (res.sphere && (!res.sphere.round || !res.sphere.inside)) issues.push("sphere " + JSON.stringify(res.sphere));

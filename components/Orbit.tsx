@@ -95,6 +95,12 @@ export function OrbitLayer() {
             const t = Math.min(R, Math.abs(dx));
             offset = R - Math.sqrt(Math.max(0, R * R - t * t));
           }
+          // clamp to the grid box: cards must never be pushed off-screen (user bug)
+          if (side === "left") offset = Math.min(offset, r.x);
+          else if (side === "right") offset = Math.min(offset, box.width - (r.x + r.w));
+          else if (side === "top") offset = Math.min(offset, r.y);
+          else offset = Math.min(offset, box.height - (r.y + r.h));
+          offset = Math.max(0, offset); // never be pushed off-screen
           el.setAttribute("data-orbit", side);
           (el as HTMLElement).style.setProperty("--arc-offset", offset.toFixed(1) + "px");
         } else {

@@ -415,3 +415,17 @@ body { background: var(--bg); }
 @media (prefers-reduced-motion: reduce) {
   .dash-grid > .panel { transition-duration: 0.1s; }
 }
+
+/* Exercise C1 (user request): the sphere window is removed —
+   the ball sits directly on the backdrop: no frame, no header, no corners. */
+.dash-grid > .g-sphere {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.dash-grid > .g-sphere::after { display: none; }
+.dash-grid > .g-sphere .panel-corner { display: none; }
+.dash-grid > .g-sphere .panel-head { display: none; }
+.dash-grid > .g-sphere .panel-body { padding: 0; }
