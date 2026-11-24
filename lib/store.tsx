@@ -294,8 +294,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return () => {
       closed = true;
       if (pingTimer.current) clearInterval(pingTimer.current);
+      const ws = wsRef.current;
       try {
-        wsRef.current?.close();
+        // StrictMode unmounts before the socket is open: let it open first, then
+        // close — avoids "WebSocket is closed before connection established"
+        if (ws && ws.readyState === WebSocket.CONNECTING) {
+          ws.addEventListener("open", () => ws.close(), { once: true });
+          ws.addEventListener("error", () => {}, { once: true });
+        } else {
+          ws?.close();
+        }
       } catch {}
     };
   }, [handleMessage]);

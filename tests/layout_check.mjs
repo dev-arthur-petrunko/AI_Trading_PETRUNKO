@@ -28,7 +28,14 @@ for (const [w, h] of SIZES) {
   try {
     await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 60000 });
     await page.waitForSelector(".panel", { timeout: 30000 });
-    await page.waitForTimeout(3500); // intro (2.2s) + first measure + sphere boot
+    // wait for REAL hydration (mode class + orbit + sphere canvas are set by effects);
+    // then for intro dismiss (2.2s) and panel entrance animations (delay up to 1s + 0.55s)
+    await page.waitForFunction(
+      () => document.documentElement.dataset.mode && document.querySelector(".sphere-mount canvas"),
+      null, { timeout: 30000 }
+    );
+    await page.waitForFunction(() => document.querySelector(".intro.done"), null, { timeout: 15000 });
+    await page.waitForTimeout(2000);
 
     const res = await page.evaluate(() => {
       const out = { clipped: [], prioHidden: [], mode: document.documentElement.dataset.mode || "?" };

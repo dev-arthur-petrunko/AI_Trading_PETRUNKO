@@ -65,24 +65,36 @@ export function OrbitLayer() {
       setMode(m);
       const orbit = m === "xl" || m === "l";
 
-      const sphEl = grid.querySelector(".g-sphere");
-      const sphR = sphEl ? sphEl.getBoundingClientRect() : null;
-      if (!sphR || sphR.width < 10) return;
-      const cx = sphR.left - box.left + sphR.width / 2;
-      const cy = sphR.top - box.top + sphR.height / 2;
-      const D = Math.min(sphR.width, sphR.height) * 0.9;
+      // BASE rects = layout positions (offset* ignores the arc translate and its
+      // 0.3s transition — measure never compounds and never chases a moving transform)
+      type BR = { el: HTMLElement; x: number; y: number; w: number; h: number };
+      const all: BR[] = [];
+      const panelEls = Array.from(grid.querySelectorAll<HTMLElement>(":scope > .panel"));
+      for (let i = 0; i < panelEls.length; i++) {
+        const el = panelEls[i];
+        all.push({ el: el, x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
+      }
+      let sphBase: BR | null = null;
+      for (let i = 0; i < all.length; i++) if (all[i].el.classList.contains("g-sphere")) sphBase = all[i];
+      if (!sphBase || sphBase.w < 10) return;
+      const cx = sphBase.x + sphBase.w / 2;
+      const cy = sphBase.y + sphBase.h / 2;
+      const D = Math.min(sphBase.w, sphBase.h) * 0.9;
       const R = D / 2 + D * 0.12;
 
       const rays: Ray[] = [];
       for (let k = 0; k < CARD_IDS.length; k++) {
         const id = CARD_IDS[k];
-        const el = grid.querySelector("." + id);
-        if (!el) continue;
-        const b = el.getBoundingClientRect();
-        const r: R = { x: b.left - box.left, y: b.top - box.top, w: b.width, h: b.height };
+        let self: BR | null = null;
+        for (let i = 0; i < all.length; i++) if (all[i].el.classList.contains(id)) self = all[i];
+        if (!self) continue;
+        const el = self.el;
+        const r: R = { x: self.x, y: self.y, w: self.w, h: self.h };
         const dx = r.x + r.w / 2 - cx;
         const dy = r.y + r.h / 2 - cy;
 
+        let raySide: "left" | "right" | "top" | "bottom" | null = null;
+        let rayOff = 0;
         if (orbit) {
           let side: "left" | "right" | "top" | "bottom";
           let offset: number;
@@ -95,28 +107,44 @@ export function OrbitLayer() {
             const t = Math.min(R, Math.abs(dx));
             offset = R - Math.sqrt(Math.max(0, R * R - t * t));
           }
-          // clamp to the grid box: cards must never be pushed off-screen (user bug)
-          if (side === "left") offset = Math.min(offset, r.x);
-          else if (side === "right") offset = Math.min(offset, box.width - (r.x + r.w));
-          else if (side === "top") offset = Math.min(offset, r.y);
-          else offset = Math.min(offset, box.height - (r.y + r.h));
-          offset = Math.max(0, offset); // never be pushed off-screen
+          // free space toward movement direction: grid edge AND nearest neighbour
+          // (margins+gap) -> the card can step, but can never overlap or leave the screen
+          const vHit = (o: BR) => o !== self && o.y < r.y + r.h - 4 && o.y + o.h > r.y + 4;
+          const hHit = (o: BR) => o !== self && o.x < r.x + r.w - 4 && o.x + o.w > r.x + 4;
+          let free: number;
+          if (side === "right") {
+            const c = all.filter((o) => vHit(o) && o.x >= r.x + r.w - 6).map((o) => o.x - (r.x + r.w));
+            free = Math.min(box.width - (r.x + r.w), ...(c.length ? c : [Infinity]));
+          } else if (side === "left") {
+            const c = all.filter((o) => vHit(o) && o.x + o.w <= r.x + 6).map((o) => o.x + o.w - r.x);
+            free = Math.min(r.x, ...(c.length ? c : [Infinity]));
+          } else if (side === "bottom") {
+            const c = all.filter((o) => hHit(o) && o.y >= r.y + r.h - 6).map((o) => o.y - (r.y + r.h));
+            free = Math.min(box.height - (r.y + r.h), ...(c.length ? c : [Infinity]));
+          } else {
+            const c = all.filter((o) => hHit(o) && o.y + o.h <= r.y + 6).map((o) => o.y + o.h - r.y);
+            free = Math.min(r.y, ...(c.length ? c : [Infinity]));
+          }
+          offset = Math.max(0, Math.min(offset, free));
           el.setAttribute("data-orbit", side);
           (el as HTMLElement).style.setProperty("--arc-offset", offset.toFixed(1) + "px");
+          raySide = side;
+          rayOff = offset;
         } else {
           el.removeAttribute("data-orbit");
           (el as HTMLElement).style.setProperty("--arc-offset", "0px");
         }
 
-        if (!orbit) continue;
+        if (!orbit || !raySide) continue;
 
+        // anchor = VISIBLE inner edge (layout rect + the arc translate we just applied)
         let ax: number, ay: number;
         if (Math.abs(dx) >= Math.abs(dy)) {
-          ax = dx < 0 ? r.x + r.w : r.x;
+          ax = dx < 0 ? r.x + r.w - rayOff : r.x + rayOff;
           ay = r.y + r.h / 2;
         } else {
           ax = r.x + r.w / 2;
-          ay = dy < 0 ? r.y + r.h : r.y;
+          ay = dy < 0 ? r.y + r.h - rayOff : r.y + rayOff;
         }
         const ex = ax - cx, ey = ay - cy;
         const len = Math.hypot(ex, ey) || 1;
@@ -129,7 +157,7 @@ export function OrbitLayer() {
         });
       }
 
-      setGeo({ cx: cx, cy: cy, D: D, rays: rays });
+    setGeo({ cx: cx, cy: cy, D: D, rays: rays });
     };
 
     measure();

@@ -33,7 +33,10 @@ const DIR_DOWN = new THREE.Color("#FF3B5C");
 const DIR_FLAT = new THREE.Color("#2DD4FF");
 const AMBER = new THREE.Color("#FFB020");
 
-/** Насечки гимбала: каждые 5°, длинные каждые 30° (Exercise §C1). */
+/** Насечки гимбала: каждые 5°, длинные каждые 30° (Exercise §C1).
+ *  Округление до 0.01 — Math.cos даёт разный последний бит в Node и в браузере,
+ *  из-за чего гидрация ругалась на несовпадение x1="…4727" vs "…473". */
+const R2 = (n: number) => Math.round(n * 100) / 100;
 const DIAL_TICKS = Array.from({ length: 72 }, (_, i) => {
   const a = (i * 5 * Math.PI) / 180;
   const long = i % 18 === 0;
@@ -42,10 +45,10 @@ const DIAL_TICKS = Array.from({ length: 72 }, (_, i) => {
   return (
     <line
       key={i}
-      x1={100 + Math.cos(a) * r0}
-      y1={100 + Math.sin(a) * r0}
-      x2={100 + Math.cos(a) * 97}
-      y2={100 + Math.sin(a) * 97}
+      x1={R2(100 + Math.cos(a) * r0)}
+      y1={R2(100 + Math.sin(a) * r0)}
+      x2={R2(100 + Math.cos(a) * 97)}
+      y2={R2(100 + Math.sin(a) * 97)}
       stroke="rgba(45,212,255,0.65)"
       strokeWidth={long ? 1.6 : 0.7}
     />

@@ -27,6 +27,7 @@ export const BP = {
 
 export function pickMode(w: number, h: number): LayoutMode {
   if (w < BP.phone) return "s";
+  if (h >= w) return "m"; // portrait >=700 is mode M in CSS — keep JS in sync
   if (w >= BP.big && w / Math.max(1, h) >= BP.wideAspect) return "xl";
   if (w >= BP.wide) return "l";
   return "m";

@@ -102,24 +102,19 @@ function Dashboard() {
         .g-sphere  { grid-column: 3 / span 6;  grid-row: 2 / 4; }
         .g-feed    { grid-column: 9 / span 2;  grid-row: 2; }
         .g-fan     { grid-column: 11 / span 2; grid-row: 2; }
-        .g-timeline{ grid-column: 9 / span 3;  grid-row: 3; }
-        .g-tape    { grid-column: 12 / span 1; grid-row: 3; }
+        .g-timeline{ grid-column: 9 / span 2;  grid-row: 3; }
+        .g-tape    { grid-column: 11 / span 2; grid-row: 3; }
 
-        /* XL «Орбита» (≥1500 и шире 1.45): боковые колонки растут в узкий центр,
-           свободная ширина уходит им, а не в пустые поля (Exercise §B). */
+        /* XL: wide top cards (4-col cells need room, else price values clip) */
         @media (min-width: 1500px) and (min-aspect-ratio: 29 / 20) {
           .g-price   { grid-column: 1 / span 3; }
-          .g-metrics { grid-column: 1 / span 3; }
-          .g-sphere  { grid-column: 4 / span 6; }
-          .g-candles { grid-column: 7 / span 3; }
-          .g-book    { grid-column: 10 / span 3; }
-          .g-fng     { grid-column: 10 / span 3; }
-          .g-feed    { grid-column: 10 / span 3; }
-          .g-fan     { grid-column: 10 / span 3; }
-          .g-timeline{ grid-column: 10 / span 3; }
-          .g-tape    { grid-column: 10 / span 3; }
+          .g-candles { grid-column: 4 / span 4; }
         }
-
+        /* orbit breathing room (L/XL): cards inset inside their cells,
+           so the arc step uses margins+gap and can never reach a neighbour */
+        @media (min-width: 1100px) {
+          .dash-grid > .panel { margin: calc(var(--u) * 10) calc(var(--u) * 16); }
+        }
         /* M «Планшет» (700–1099 или портрет): шар сверху квадратом, под ним сетка 2 колонки */
         @media (max-width: 1099px), (orientation: portrait) and (max-width: 1499px) {
           .dash-grid {
