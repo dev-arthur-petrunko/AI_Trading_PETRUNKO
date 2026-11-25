@@ -42,7 +42,7 @@ for (const [w, h] of SIZES) {
       // horizontal page scroll
       out.hScroll = document.documentElement.scrollWidth > window.innerWidth + 1;
       // clipped content: any element whose content overflows its box
-      for (const el of document.querySelectorAll(".panel, .panel-head, .cell, .mcard, .lvl, .kpi, .mcell, .trow, .feed-row")) {
+      for (const el of document.querySelectorAll(".panel, .mc-sat, .panel-head, .cell, .mcard, .lvl, .kpi, .mcell, .trow, .feed-row")) {
         if (el.scrollWidth > el.clientWidth + 2 || el.scrollHeight > el.clientHeight + 2) {
           out.clipped.push((el.className || el.tagName).toString().slice(0, 44));
         }
@@ -54,7 +54,7 @@ for (const [w, h] of SIZES) {
       }
       // every panel must stay inside the viewport (orbit offsets must not push cards off)
       out.offscreen = [];
-      for (const el of document.querySelectorAll(".panel")) {
+      for (const el of document.querySelectorAll(".panel, .mc-sat")) {
         const rr = el.getBoundingClientRect();
         if (rr.width > 0 && (rr.left < -2 || rr.right > window.innerWidth + 2)) {
           out.offscreen.push((el.className || el.tagName).toString().slice(0, 40));

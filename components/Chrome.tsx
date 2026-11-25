@@ -19,13 +19,21 @@ const NAV: { id: Sub; key: TKey }[] = [
 ];
 
 export function TopBar() {
-  const { sub, setSub, source, setSource, health, connected, latencyMs, rank, t, lang, setLang } = useStore();
+  const { sub, setSub, source, setSource, health, connected, latencyMs, rank, t, lang, setLang, symbol, stat, forecast } = useStore();
   const [clock, setClock] = useState<string | null>(null);
+  // липкий TopBar + компактная строка, когда заголовок ушёл вверх (ТЗ v3 §A)
+  const [compact, setCompact] = useState(false);
 
   useEffect(() => {
     setClock(utcClock());
-    const t = setInterval(() => setClock(utcClock()), 1000);
-    return () => clearInterval(t);
+    const ti = setInterval(() => setClock(utcClock()), 1000);
+    const onScroll = () => setCompact(window.scrollY > 80);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      clearInterval(ti);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   const pills = rank.length
@@ -50,6 +58,14 @@ export function TopBar() {
           </button>
         ))}
       </nav>
+
+      <div className={`compactline mono ${compact ? "on" : ""}`} aria-hidden>
+        <b>{symbol}</b>
+        <span className="mono">{stat?.price !== undefined ? fmtPrice(stat.price, symbol) : "—"}</span>
+        <span className={forecast && forecast.probUp >= 0.5 ? "bull" : "bear"}>
+          P↑ {forecast ? (forecast.probUp * 100).toFixed(1) + "%" : "—"}
+        </span>
+      </div>
 
       <div className="right">
         <div className="lang" role="group" aria-label="Language / Язык / Мова">
@@ -105,8 +121,18 @@ export function TopBar() {
           border-bottom: 1px solid var(--stroke);
           background: linear-gradient(180deg, rgba(10,20,35,0.9), rgba(5,10,18,0.7));
           backdrop-filter: blur(6px);
-          position: relative; z-index: 30;
+          position: sticky; top: 0; z-index: 30;
         }
+        /* компактная строка (ТЗ v3 §A): актив · цена · P↑ — после ухода заголовка вверх */
+        .compactline {
+          display: inline-flex; align-items: center; gap: calc(var(--u) * 8);
+          font-size: var(--fs-xs); letter-spacing: 0.08em; color: var(--ink);
+          max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap;
+          transition: max-width 0.3s ease, opacity 0.25s ease;
+          border-left: 1px solid var(--stroke);
+        }
+        .compactline.on { max-width: calc(var(--u) * 340); opacity: 1; padding-left: calc(var(--u) * 10); }
+        .compactline b { color: var(--cyan); font-weight: 700; }
         .brand { display: flex; align-items: center; gap: calc(var(--u) * 8); cursor: pointer; }
         .brand .logo { color: var(--cyan); font-size: calc(var(--u) * 22); text-shadow: 0 0 12px var(--cyan); }
         .brand-name { font-size: var(--fs-m); letter-spacing: 0.22em; font-weight: 700; }

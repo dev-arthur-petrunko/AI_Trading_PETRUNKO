@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Style } from "@/components/Style";
 import { useStore } from "@/lib/store";
+import { ArcCard } from "@/components/ArcCard";
 import { COLORS, fmtPct, fmtNum } from "@/lib/format";
 
 type MetricDef = {
@@ -25,9 +26,9 @@ type Ctx = {
   history: number[];
 };
 
-/** Left column: metric cards with live sparklines. They also RECEIVE the core's
- *  publications (`aps-out`): every card flashes and a «◄ ИЗ ЯДРА» chip shows what
- *  the neural sphere just pushed (data flow: sphere → AI Metrics). */
+/** METRICS как 6 карточек-спутников левой дуги орбиты (ТЗ v3 §B2):
+ *  каждая метрика — отдельная ArcCard (280u×84u, акцент слева, спарклайн снизу).
+ *  RECEIVE публикации ядра (`aps-out`): карточки вспыхивают + чип «◄ ИЗ ЯДРА». */
 export function MetricCards() {
   const { forecast, candles, symbol, fng, t } = useStore();
   const series = useMemo(() => candles.map((c) => c.c), [candles]);
@@ -116,7 +117,7 @@ export function MetricCards() {
     {
       key: "funding",
       accent: "#7FE0FF",
-      label: "FUNDING RATE",
+      label: t("m.funding"),
       value: (c) => (c.funding !== undefined ? `${(c.funding * 100).toFixed(4)}%` : "—"),
       bar: (c) => Math.min(1, Math.abs(c.funding ?? 0) / 0.0005),
       tone: (c) => ((c.funding ?? 0) >= 0 ? COLORS.bear : COLORS.bull),
@@ -125,75 +126,63 @@ export function MetricCards() {
   ];
 
   return (
-    <div className={`metrics ${lit ? "lit" : ""}`}>
+    <>
       {core && (
-        <span className="from-core mono" key={core.at}>◄ ИЗ ЯДРА: {core.label}</span>
+        <span className={`from-core mono ${lit ? "lit" : ""}`} key={core.at}>◄ ИЗ ЯДРА: {core.label}</span>
       )}
-      {metrics.map((m) => {
-        const t = m.tone(ctx);
+      {metrics.map((m, i) => {
+        const tone = m.tone(ctx);
         return (
-          <div className="mcard" key={m.key} style={{ ["--acc" as string]: m.accent } as React.CSSProperties}>
-            <div className="mrow">
-              <span className="mlabel">{m.label}</span>
-              <span className="mval mono" style={{ color: t, textShadow: `0 0 calc(var(--u)*8) ${t}55` }}>
-                {m.value(ctx)}
-              </span>
-            </div>
-            <div className="mbar">
-              <div className="mfill" style={{ width: `${Math.max(2, Math.min(100, m.bar(ctx) * 100))}%`, background: t }} />
-            </div>
-            <Spark values={m.spark(ctx)} color={t} prio="3" />
-            {m.key === "prob" && fng && (
-              <div className="fnote mono dim" data-prio="2">F&G {fng.value} · {fng.label}</div>
-            )}
-          </div>
+          <ArcCard
+            key={m.key}
+            id={`mc-${m.key}`}
+            className={`ml-${i + 1} mc-${m.key}`}
+            label={m.label}
+            sub={m.key === "prob" && fng ? `F&G ${fng.value} · ${fng.label}` : undefined}
+            accent={m.accent}
+            value={m.value(ctx)}
+            valueTone={tone}
+            spark={<Spark values={m.spark(ctx)} color={tone} />}
+          />
         );
       })}
       <Style>{`
-        .metrics { position: relative; display: flex; flex-direction: column; gap: calc(var(--u) * 7); height: 100%; overflow: hidden; }
-        .metrics .from-core {
-          position: absolute; top: calc(var(--u) * -2); right: 0; z-index: 3;
-          font-size: calc(var(--fs-xs) * 0.8); letter-spacing: 0.08em;
+        /* карточки-спутники лежат в сетке HERO напрямую (ячейки ml-1..6 заданы классом) */
+        .dash-grid .ml-1 { grid-column: 1 / span 2; grid-row: 1; }
+        .dash-grid .ml-2 { grid-column: 1 / span 2; grid-row: 2; }
+        .dash-grid .ml-3 { grid-column: 1 / span 2; grid-row: 3; }
+        .dash-grid .ml-4 { grid-column: 1 / span 2; grid-row: 4; }
+        .dash-grid .ml-5 { grid-column: 1 / span 2; grid-row: 5; }
+        .dash-grid .ml-6 { grid-column: 1 / span 2; grid-row: 6; }
+        /* чип «ИЗ ЯДРА» — маленьким тегом над шапкой первой карточки (§B4) */
+        .from-core {
+          position: absolute; top: calc(var(--u) * -10); left: 0; z-index: 3;
+          font-size: calc(var(--fs-xs) * 0.78); letter-spacing: 0.08em;
           color: var(--cyan); background: rgba(5,10,18,0.92);
           border: 1px solid var(--cyan); padding: calc(var(--u) * 2) calc(var(--u) * 6);
           text-shadow: 0 0 calc(var(--u) * 6) rgba(45,212,255,0.7);
           animation: coreChip 3.4s ease both; pointer-events: none; white-space: nowrap;
+          width: fit-content;
         }
         @keyframes coreChip { 0% { opacity: 0; transform: translateX(14px); } 12% { opacity: 1; transform: none; } 84% { opacity: 1; } 100% { opacity: 0; } }
-        .metrics.lit .mcard { animation: cardLit 1s ease both; }
-        .metrics.lit .mcard:nth-child(3) { animation-delay: 0.05s; }
-        .metrics.lit .mcard:nth-child(4) { animation-delay: 0.1s; }
-        .metrics.lit .mcard:nth-child(5) { animation-delay: 0.15s; }
-        .metrics.lit .mcard:nth-child(6) { animation-delay: 0.2s; }
-        .metrics.lit .mcard:nth-child(7) { animation-delay: 0.25s; }
+        .from-core + .mc-sat { animation: cardLit 1s ease both; }
         @keyframes cardLit {
-          0% { border-left-color: var(--cyan); background: rgba(45,212,255,0.22); box-shadow: inset 0 0 calc(var(--u) * 12) rgba(45,212,255,0.25); }
-          100% { background: rgba(5,10,18,0.35); box-shadow: none; }
+          0% { border-color: var(--cyan); box-shadow: 0 0 calc(var(--u) * 12) rgba(45,212,255,0.3); }
+          100% { box-shadow: none; }
         }
-        .mcard { border-left: calc(var(--u) * 3) solid var(--acc, var(--stroke)); padding: calc(var(--u) * 4) calc(var(--u) * 8); background: rgba(5,10,18,0.35); }
-        .mrow { display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--u) * 6); }
-        .mlabel { font-family: "JetBrains Mono", monospace; font-size: calc(var(--fs-xs) * 0.82); color: var(--dim); letter-spacing: 0.1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mval { font-size: var(--fs-m); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-        .mbar { height: calc(var(--u) * 4); background: rgba(27,58,92,0.4); margin-top: calc(var(--u) * 3); overflow: hidden; }
-        .mfill { height: 100%; transition: width 0.6s ease; }
-        .fnote { font-size: calc(var(--fs-xs) * 0.8); margin-top: calc(var(--u) * 3); letter-spacing: 0.06em; }
-        .spark { display: block; margin-top: calc(var(--u) * 3); }
+        @media (max-width: 1099px), (orientation: portrait) and (max-width: 1499px), (max-width: 699px) {
+          .dash-grid .ml-1, .dash-grid .ml-2, .dash-grid .ml-3,
+          .dash-grid .ml-4, .dash-grid .ml-5, .dash-grid .ml-6 { grid-column: auto; grid-row: auto; }
+        }
       `}</Style>
-    </div>
+    </>
   );
 }
 
-function Spark({ values, color, prio }: { values: number[]; color: string; prio?: "2" | "3" }) {
-  const ref = useRef<SVGSVGElement>(null);
-  const w = 60;
-  const h = 20;
-  const pr = prio ? { "data-prio": prio } : {};
-
-  useEffect(() => {
-    // smooth scroll illusion: nothing to do — data shifts every tick, svg re-renders
-  }, [values]);
-
-  if (!values || values.length < 2) return <svg className="spark" width={w} height={h} {...pr} />;
+function Spark({ values, color }: { values: number[]; color: string }) {
+  const w = 240;
+  const h = 18;
+  if (!values || values.length < 2) return <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} />;
 
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -203,8 +192,8 @@ function Spark({ values, color, prio }: { values: number[]; color: string; prio?
     .join(" ");
 
   return (
-    <svg className="spark" width={w} height={h} viewBox={`0 0 ${w} ${h}`} ref={ref} {...pr}>
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.2" opacity="0.9" />
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.2" opacity="0.9" vectorEffect="non-scaling-stroke" />
       <polyline points={`0,${h} ${pts} ${w},${h}`} fill={`${color}22`} stroke="none" />
     </svg>
   );

@@ -3,7 +3,9 @@ import path from "node:path";
 import { chromium } from "playwright";
 const D = process.env.AI_PROJ;
 const URL = process.env.SITE || "http://localhost:3000";
-const EXPECT = ["g-price","g-candles","g-book","g-fng","g-metrics","g-sphere","g-feed","g-fan","g-timeline","g-tape"];
+const EXPECT = ["mc-prob","mc-conf","mc-rsi","mc-macd","mc-vol","mc-funding","g-sphere",
+  "sat-fan","sat-risk","sat-top3","sat-hit","sat-feed",
+  "g-candles","g-book","g-fng","g-feed","g-fan","g-timeline","g-tape"];
 const SIZES = [[1920,1080],[1536,864],[2560,1440],[1000,700],[1366,768]];
 const browser = await chromium.launch();
 let fail = 0;
@@ -24,8 +26,8 @@ for (const [w, h] of SIZES) {
     const res = await page.evaluate((expect) => {
       const out = { missing: [], overlaps: [], mode: document.documentElement.dataset.mode };
       const rects = {};
-      for (const el of document.querySelectorAll(".dash-grid > .panel")) {
-        const cls = [...el.classList].find((c) => c.startsWith("g-"));
+      for (const el of document.querySelectorAll(".dash-grid > .panel, .dash-grid > .mc-sat")) {
+        const cls = el.id || [...el.classList].find((c) => /^(g-|mc-|sat-)/.test(c));
         if (cls) rects[cls] = el.getBoundingClientRect();
       }
       for (const k of expect) if (!rects[k]) out.missing.push(k);
@@ -48,7 +50,8 @@ for (const [w, h] of SIZES) {
     if (res.overlaps.length) issues.push("overlap: " + res.overlaps.join(" | "));
     if (res.offscreen && res.offscreen.length) issues.push("offscreen: " + res.offscreen.join(","));
     if (res.missing.length || res.overlaps.length || (res.offscreen && res.offscreen.length)) fail++;
-    console.log(`${w}x${h} [${res.mode}]: ` + (issues.length ? "FAIL " + issues.join("; ") : "OK (10 panels, no overlap)"));
+    const cnt = Object.keys(rects).length;
+    console.log(`${w}x${h} [${res.mode}]: ` + (issues.length ? "FAIL " + issues.join("; ") : `OK (${cnt} cards, no overlap)`));
   } catch (e) {
     fail++;
     console.log(`${w}x${h}: EXC ${String(e).slice(0, 120)}`);

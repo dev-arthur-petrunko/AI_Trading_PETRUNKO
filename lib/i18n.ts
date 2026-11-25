@@ -202,6 +202,15 @@ type Dict = {
   "m.conf": string;
   "m.vol": string;
   "m.funding": string;
+  // --- ТЗ v3: HERO / секции / карточки-спутники ---
+  "hero.more": string;
+  "sc.market": string;
+  "sc.forecast": string;
+  "sat.fan": string;
+  "sat.risk": string;
+  "sat.top3": string;
+  "sat.hit": string;
+  "sat.feed": string;
 };
 
 const ru: Dict = {
@@ -309,6 +318,11 @@ const ru: Dict = {
 
   "m.prob": "ВЕРОЯТНОСТЬ РОСТА", "m.conf": "УВЕРЕННОСТЬ МОДЕЛИ", "m.vol": "ВОЛАТИЛЬНОСТЬ (30д)",
   "m.funding": "FUNDING RATE",
+
+  "hero.more": "ещё анализ ↓",
+  "sc.market": "РЫНОК", "sc.forecast": "ПРОГНОЗ",
+  "sat.fan": "ВЕЕР ПРОГНОЗА 7Д", "sat.risk": "РИСК-ФАКТОРЫ",
+  "sat.top3": "ТОП-3 АНАЛОГА", "sat.hit": "HIT-RATE БЭКТЕСТА", "sat.feed": "ЖИВАЯ ЛЕНТА",
 };
 
 type Vars = Record<string, string | number>;
@@ -420,6 +434,11 @@ const en: Dict = {
 
   "m.prob": "PROBABILITY OF UP", "m.conf": "MODEL CONFIDENCE", "m.vol": "VOLATILITY (30d)",
   "m.funding": "FUNDING RATE",
+
+  "hero.more": "more analysis ↓",
+  "sc.market": "MARKET", "sc.forecast": "FORECAST",
+  "sat.fan": "FORECAST FAN 7D", "sat.risk": "RISK FACTORS",
+  "sat.top3": "TOP-3 ANALOGS", "sat.hit": "BACKTEST HIT-RATE", "sat.feed": "LIVE FEED",
 };
 
 const uk: Dict = {
@@ -527,6 +546,11 @@ const uk: Dict = {
 
   "m.prob": "ЙМОВІРНІСТЬ РОСТУ", "m.conf": "ВПЕВНЕНІСТЬ МОДЕЛІ", "m.vol": "ВОЛАТИЛЬНІСТЬ (30д)",
   "m.funding": "FUNDING RATE",
+
+  "hero.more": "ще аналіз ↓",
+  "sc.market": "РИНОК", "sc.forecast": "ПРОГНОЗ",
+  "sat.fan": "ВІЯЛО ПРОГНОЗУ 7Д", "sat.risk": "ФАКТОРИ РИЗИКУ",
+  "sat.top3": "ТОП-3 АНАЛОГІВ", "sat.hit": "HIT-RATE БЕКТЕСТУ", "sat.feed": "ЖИВА СТРІЧКА",
 };
 
 const DICT: Record<Lang, Dict> = { ru, en, uk };
