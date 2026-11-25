@@ -210,8 +210,9 @@ server/              # index.mjs (HTTP+WS хаб), exchange.mjs, history.mjs, st
 tools/               # build-core.mjs (TS→ESM для сервера), debug-скрипты методологии
 tests/               # layout_check.mjs (10 размеров), overlap_check.mjs (наложение),
                      # console.mjs (чистота консоли), screens/ (скриншоты)
-docs/                # DESIGN.md (визуальная система), LOGIC.md (расчёты и API),
-                     # AI_DATA.md (почасовой накопитель), Exercise.md (ТЗ)
+docs/                # ТЗ.md (ТЗ v3 — актуальное), Exercise.md (исходное ТЗ §A–F),
+                     # DESIGN.md (визуальная система), LOGIC.md (расчёты и API),
+                     # AI_DATA.md (почасовой накопитель)
 data/                # SQLite (создаётся при первом запуске, в git не попадает)
 start.bat            # Windows: install → core build → backend :8787 → frontend :3000
 ```
