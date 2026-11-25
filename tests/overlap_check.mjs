@@ -44,14 +44,14 @@ for (const [w, h] of SIZES) {
         const r = rects[k];
         return r.width > 0 && (r.left < -2 || r.right > window.innerWidth + 2);
       });
+      out.total = keys.length;
       return out;
     }, EXPECT);
     if (res.missing.length) issues.push("missing: " + res.missing.join(","));
     if (res.overlaps.length) issues.push("overlap: " + res.overlaps.join(" | "));
     if (res.offscreen && res.offscreen.length) issues.push("offscreen: " + res.offscreen.join(","));
     if (res.missing.length || res.overlaps.length || (res.offscreen && res.offscreen.length)) fail++;
-    const cnt = Object.keys(rects).length;
-    console.log(`${w}x${h} [${res.mode}]: ` + (issues.length ? "FAIL " + issues.join("; ") : `OK (${cnt} cards, no overlap)`));
+    console.log(`${w}x${h} [${res.mode}]: ` + (issues.length ? "FAIL " + issues.join("; ") : `OK (${res.total} cards, no overlap)`));
   } catch (e) {
     fail++;
     console.log(`${w}x${h}: EXC ${String(e).slice(0, 120)}`);
